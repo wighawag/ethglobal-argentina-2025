@@ -31,6 +31,13 @@ interface UsingGameTypes {
         IERC721 avatars;
     }
 
+    struct PublicStarSystem {
+        uint256 empireID;
+        uint64 numSpaceships;
+        bool isActive;
+        uint64 lastUpdatedEpoch;
+    }
+
     // ------------------------------------------------------------------------
 
     // ------------------------------------------------------------------------
@@ -51,7 +58,7 @@ interface UsingGameTypes {
 
     struct StarSystemState {
         uint256 empireID;
-        uint64 numSPaceships;
+        uint64 numSpaceships;
         bool isActive;
         uint64 lastUpdatedEpoch;
     }

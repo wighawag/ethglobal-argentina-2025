@@ -169,6 +169,36 @@ abstract contract UsingGameInternal is
         emit CommitmentVoid(empireID, epoch);
     }
 
+    function _getPublicStarSystem(
+        uint64 location,
+        uint64 epoch
+    ) internal view returns (PublicStarSystem memory starSystem) {
+        StarSystemState memory starSystemState = _starSystems[location];
+        starSystem = PublicStarSystem({
+            empireID: starSystemState.empireID,
+            numSpaceships: starSystemState.numSpaceships,
+            isActive: starSystemState.isActive,
+            lastUpdatedEpoch: starSystemState.lastUpdatedEpoch
+        });
+    }
+
+    function _getPublicStarSystems(
+        uint64[] calldata locations,
+        uint64 epoch
+    ) internal view returns (PublicStarSystem[] memory starSystems) {
+        uint256 numLocations = locations.length;
+        starSystems = new PublicStarSystem[](numLocations);
+        for (uint256 i = 0; i < numLocations; i++) {
+            StarSystemState memory starSystemState = _starSystems[locations[i]];
+            starSystems[i] = PublicStarSystem({
+                empireID: starSystemState.empireID,
+                numSpaceships: starSystemState.numSpaceships,
+                isActive: starSystemState.isActive,
+                lastUpdatedEpoch: starSystemState.lastUpdatedEpoch
+            });
+        }
+    }
+
     //-------------------------------------------------------------------------
 
     struct ActionResolution {

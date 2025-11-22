@@ -89,7 +89,7 @@ export function createDirectReadStore(camera: Readable<Camera>) {
 
 		const result = await publicClient.readContract({
 			...Game,
-			functionName: 'getAvatarsInMultipleZones',
+			functionName: 'getStarSystemsInMultipleZones',
 			args: [zones, 0n, 100n] // TODO use pagination
 		});
 		if (fromCameraUpdate) {

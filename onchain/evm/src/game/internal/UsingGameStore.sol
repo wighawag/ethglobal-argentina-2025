@@ -25,6 +25,8 @@ abstract contract UsingGameStore is UsingGameTypes, UsingVirtualTime {
     mapping(address owner => uint256[]) internal _ownedEmpires;
     mapping(uint256 avatarID => uint256) internal _ownedEmpiresIndex;
 
+    mapping(uint64 location => StarSystemState) internal _starSystems;
+
     mapping(uint256 => Commitment) internal _commitments;
 
     /// @notice Create an instance of a game

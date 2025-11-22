@@ -27,4 +27,22 @@ contract GameGetters is IGameGetters, UsingGameInternal {
                 avatars: AVATARS
             });
     }
+
+    function getStarSystems(
+        uint64[] calldata locations
+    )
+        external
+        view
+        returns (PublicStarSystem[] memory starSystems, uint64 epoch)
+    {
+        (epoch, ) = _epoch();
+        starSystems = _getPublicStarSystems(locations, epoch);
+    }
+
+    function getStarSystem(
+        uint64 location
+    ) external view returns (PublicStarSystem memory starSystem, uint64 epoch) {
+        (epoch, ) = _epoch();
+        starSystem = _getPublicStarSystem(location, epoch);
+    }
 }

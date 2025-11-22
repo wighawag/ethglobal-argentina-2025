@@ -57,7 +57,7 @@
 		"#generated/*.js": "./generated/*.js"
 	},
 	"scripts": {
-		"prepare": "set-defaults .vscode && pnpm generate_areas &&  pnpm compile",
+		"prepare": "set-defaults .vscode &&  pnpm compile",
 		"---------------------- INTERNAL ----------------------": "",
 		":deploy+export": "hardhat --network $MODE deploy --skip-prompts && rocketh-export -e $MODE",
 		"---------------------- DEV ---------------------- ": "",

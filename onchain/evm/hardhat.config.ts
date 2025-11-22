@@ -61,7 +61,6 @@ const config: HardhatUserConfig = {
 						type: 'edr-simulated',
 						chainType: 'l1',
 						allowBlocksWithSameTimestamp: true,
-						gasPrice: 1n,
 						mining: {
 							interval: 1000,
 						},

@@ -31,6 +31,7 @@
     "onchain:deploy": "ldenv pnpm run --filter ./onchain/evm deploy @@MODE @@",
     "onchain:verify": "ldenv pnpm run --filter ./onchain/evm verify @@MODE @@",
     "onchain:compile": "ldenv pnpm --filter ./onchain/evm compile",
+    "onchain:test": "ldenv pnpm --filter ./onchain/evm test",
     "onchain:compile:watch": "ldenv pnpm --filter ./onchain/evm compile:watch",
     "onchain:build": "ldenv pnpm --filter ./onchain/evm compile ~~ pnpm --filter ./onchain/evm typescript ~~ pnpm --filter ./onchain/evm export @@MODE --ts ../../web/src/lib/deployments.ts ~~ @@",
     "onchain:export": "ldenv pnpm --filter ./onchain/evm typescript ~~ pnpm --filter ./onchain/evm export @@MODE --ts ../../web/src/lib/deployments.ts ~~ @@",

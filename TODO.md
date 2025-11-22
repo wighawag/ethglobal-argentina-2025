@@ -1,0 +1,1 @@
+- [ ] fix commit failure: need to remove avatar and warn player

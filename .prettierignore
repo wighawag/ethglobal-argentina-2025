@@ -1,0 +1,33 @@
+# for some reason, prettier vscode do not lookup for prettierignore as it does for prettierrc, so we need to put all at the root, see https://github.com/prettier/prettier-vscode/issues/3003
+
+node_modules
+
+.vscode/*
+!*.default
+*.local
+
+# rocketh
+generated
+deployments/localhost
+deployments/hardhat*
+deployments/lan
+_metadata
+
+# hardhat
+coverage
+coverage.json
+.coverage-config.json
+.coverage-data.json
+cache
+artifacts
+docs
+
+.vscode/*
+!*.default
+
+dist/
+
+deployments
+package.json
+pnpm-lock.yaml
+*.hbs

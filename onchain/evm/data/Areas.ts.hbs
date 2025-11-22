@@ -1,0 +1,11 @@
+export const Areas = [
+{{#each areas}}
+/*
+{{this.ascii}}
+*/
+{
+  cells: [{{this.cells}}],
+  size: {{this.size}}
+},
+{{/each}}
+] as const;

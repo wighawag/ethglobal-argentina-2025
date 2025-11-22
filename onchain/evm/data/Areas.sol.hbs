@@ -1,0 +1,28 @@
+
+// SPDX-License-Identifier: AGPL-3.0-or-later
+pragma solidity ^0.8.0;
+
+import "../../interfaces/UsingGameTypes.sol";
+
+library Areas {
+    function getArea(uint256 i) internal pure returns (UsingGameTypes.Area memory area) {
+        if (false) {
+
+        }
+        {{#each areas}}
+         else if(i == {{@index}}) {
+/*
+{{this.ascii}}
+*/
+              area = UsingGameTypes.Area({
+                firstBytes32: {{this.firstBytes32}},
+                secondBytes32: {{this.secondBytes32}}
+            });
+         }
+        {{/each}}
+    }
+
+    function getAreaFromHash(bytes32 areaHash) internal pure returns (UsingGameTypes.Area memory area) {
+        return getArea(uint256(areaHash) % {{areas.length}});
+    }
+}

@@ -15,7 +15,10 @@ export default deployScript(
 			revealPhaseDuration: data.Game.revealPhaseDuration,
 			time: zeroAddress,
 			avatars: Avatars.address,
-			numMoves: data.Game.numMoves,
+			genesisHash:
+				'0x0000000000000000000000000000000000000000000000000000000000000000',
+			numSpaceshipsOnActivation: 100000,
+			productionCapAsDuration: 3 * 24 * 3600, // 3 days
 		};
 
 		const routes = [

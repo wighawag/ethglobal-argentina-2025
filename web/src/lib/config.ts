@@ -32,4 +32,12 @@ gasFee.subscribe(() => {});
 
 console.log(`VERSION: ${version}`);
 
-export const spaceInfo = new SpaceInfo(deployments.contracts.Game.linkedData);
+export const spaceInfo = new SpaceInfo({
+	acquireNumSpaceships: deployments.contracts.Game.linkedData.numSpaceshipsOnActivation,
+	genesisHash: deployments.contracts.Game.linkedData.genesisHash,
+	productionCapAsDuration: deployments.contracts.Game.linkedData.productionCapAsDuration,
+	stakeMultiplier10000th: 100,
+	stakeRange: '1',
+	stakeRangeArray: [],
+	timePerDistance: 10
+});

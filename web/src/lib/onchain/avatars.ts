@@ -12,8 +12,7 @@ export type AvatarCollection = { error?: { message: string } } & (
 	| {
 			step: 'Loaded';
 			avatarsInWallet: readonly bigint[];
-			avatarsInGame: readonly bigint[];
-			avatarsOnBench: readonly bigint[];
+			empires: readonly bigint[];
 	  }
 );
 
@@ -62,15 +61,13 @@ export function createAvatarCollectionStore(
 			return false;
 		}
 
+		// TPDP use Empires NFT
 		// TODO use pagination
-		let avatarsDepositedResult: readonly [
-			readonly { avatarID: bigint; inGame: boolean; position: bigint; life: number }[],
-			boolean
-		];
+		let empiresDepositedResult: readonly [readonly bigint[], boolean];
 		try {
-			avatarsDepositedResult = await publicClient.readContract({
+			empiresDepositedResult = await publicClient.readContract({
 				...deployments.contracts.Game,
-				functionName: 'avatarsPerOwner',
+				functionName: 'empiresPerOwner',
 				args: [$account, 0n, 100n] // TODO use pagination
 			});
 		} catch (err) {
@@ -81,20 +78,12 @@ export function createAvatarCollectionStore(
 			return false;
 		}
 
-		const avatarsOnBench = avatarsDepositedResult[0]
-			.filter((v) => !v.inGame)
-			.map((v) => v.avatarID);
-		const avatarsInGame = avatarsDepositedResult[0]
-			.filter((v) => v.inGame && v.life > 0)
-			.map((v) => v.avatarID);
-
 		// console.log(avatarsDepositedResult);
 
 		set({
 			step: 'Loaded',
 			avatarsInWallet: avatarsOwnedResult[0],
-			avatarsOnBench,
-			avatarsInGame
+			empires: empiresDepositedResult[0]
 		});
 		return true;
 	}

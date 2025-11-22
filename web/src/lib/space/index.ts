@@ -78,11 +78,24 @@ export class SpaceInfo {
 			for (let y = y0; y <= y1; y++) {
 				const planet = this.getPlanetInfo(x, y);
 				if (planet) {
-					ids.push(xyToBigIntID(x, y));
+					ids.push(planet.location.id);
 				}
 			}
 		}
 		return ids;
+	}
+
+	getPlanetInfosInRect(x0: number, y0: number, x1: number, y1: number): PlanetInfo[] {
+		const planets = [];
+		for (let x = x0; x <= x1; x++) {
+			for (let y = y0; y <= y1; y++) {
+				const planet = this.getPlanetInfo(x, y);
+				if (planet) {
+					planets.push(planet);
+				}
+			}
+		}
+		return planets;
 	}
 
 	*yieldPlanetsFromRect(

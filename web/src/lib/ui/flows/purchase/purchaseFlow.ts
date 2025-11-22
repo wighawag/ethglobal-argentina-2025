@@ -82,7 +82,7 @@ function createPurchaseFlow() {
 			await wait();
 			let $avatars = await avatars.update();
 			const hasAvatar = () =>
-				$avatars.step === 'Loaded' && $avatars.avatarsOnBench.find((v) => v == avatarID);
+				$avatars.step === 'Loaded' && $avatars.empires.find((v) => v == avatarID);
 			while (!hasAvatar()) {
 				$avatars = await avatars.update();
 			}

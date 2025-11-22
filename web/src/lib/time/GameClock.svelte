@@ -79,7 +79,7 @@
       border-radius: 0px;
     "
 	></div>
-{:else if $localState.signer && $localState.avatar && Number(deployments.contracts.Game.linkedData.numMoves) - $localState.avatar.actions.filter((v) => v.type === 'move').length <= 0}
+{:else if $localState.signer && $localState.avatar}
 	<div
 		transition:fade
 		class="full-screen-border border-yellow-600"

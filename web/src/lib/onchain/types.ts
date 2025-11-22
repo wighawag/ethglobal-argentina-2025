@@ -5,6 +5,10 @@ export type BaseEntity = { id: bigint; position: { x: number; y: number } };
 export type StarSystemEntity = BaseEntity & {
 	owner: string;
 	type: 'starSystem';
+	isActive: boolean;
+	lastUpdatedEpoch: number;
+	numSpaceships: number;
+	empireID: bigint;
 };
 
 export type Entity = StarSystemEntity;

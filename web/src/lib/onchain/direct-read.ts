@@ -4,8 +4,6 @@ import { epochInfo, time } from '$lib/time';
 import { bigIntIDToXY } from 'dgame-contracts';
 import { publicClient } from '$lib/connection';
 import deployments from '$lib/deployments';
-import { type GetContractEventsReturnType } from 'viem';
-import type { LocalAction } from '$lib/private/localState';
 import { spaceInfo } from '$lib/config';
 
 const Game = deployments.contracts.Game;
@@ -72,12 +70,21 @@ export function createDirectReadStore(camera: Readable<Camera>) {
 
 	function getVisibleLocations(camera: Camera) {
 		const locations = spaceInfo.getPlanetIDsInRect(
-			camera.x - camera.width,
-			camera.y - camera.height,
-			camera.x + camera.width,
-			camera.y + camera.height
+			Math.floor(camera.x - camera.width),
+			Math.floor(camera.y - camera.height),
+			Math.ceil(camera.x + camera.width),
+			Math.ceil(camera.y + camera.height)
 		);
 		return locations;
+	}
+
+	function getVisiblePlanetsInfo(camera: Camera) {
+		return spaceInfo.getPlanetInfosInRect(
+			Math.floor(camera.x - camera.width),
+			Math.floor(camera.y - camera.height),
+			Math.ceil(camera.x + camera.width),
+			Math.ceil(camera.y + camera.height)
+		);
 	}
 
 	async function fetchState(camera: Camera, fromCameraUpdate: boolean) {
@@ -113,26 +120,11 @@ export function createDirectReadStore(camera: Readable<Camera>) {
 
 		const epoch = result[1];
 
-		console.debug(`fetched state from epoch: ${epoch}`);
+		console.debug(`fetched state from ${locations.length} location at epoch: ${epoch}`);
 
 		if (Number(epoch) < lastEpoch) {
 			// we consider for refetch
 			lastEpoch = Number(epoch);
-		}
-
-		const currentBlockNumber = Number(await publicClient.getBlockNumber());
-		const avarageBlockTime = now.lastSync.averageBlockTime;
-
-		const blockDistanceToFetchFrom = Math.floor(
-			(4 * // we multiply by 4 as we fetch for 2 epochs and we double it to ensure we get all the events even in case of late blocks, etc...
-				(Number(deployments.contracts.Game.linkedData.commitPhaseDuration) +
-					Number(deployments.contracts.Game.linkedData.revealPhaseDuration))) /
-				avarageBlockTime
-		);
-
-		let fromBlock = currentBlockNumber - blockDistanceToFetchFrom;
-		if (fromBlock < 0) {
-			fromBlock = 0;
 		}
 
 		const state: OnchainState = defaultState();
@@ -143,17 +135,21 @@ export function createDirectReadStore(camera: Readable<Camera>) {
 			const entityFetched = result[0][i];
 			const location = locations[i];
 
-			const id = entityFetched.empireID;
+			const id = locations[i];
 
 			const { x, y } = bigIntIDToXY(location);
 			const entity: StarSystemEntity = {
 				id,
-				owner: entityFetched.owner,
 				type: 'starSystem',
+				owner: entityFetched.owner,
 				position: {
 					x: Number(x),
 					y: Number(y)
-				}
+				},
+				isActive: entityFetched.isActive,
+				lastUpdatedEpoch: Number(entityFetched.lastUpdatedEpoch),
+				numSpaceships: Number(entityFetched.numSpaceships),
+				empireID: entityFetched.empireID
 			};
 			state.entities.set(id, entity);
 		}

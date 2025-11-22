@@ -118,13 +118,3 @@
 	{/if}
 </nav>
 
-{#if $localState.signer}
-	<div  class="fixed right-0 top-12 z-0 mx-auto flex h-12 w-32 bg-black px-4 text-white opacity-70">
-		<div id="stats">
-			<div>
-				Moves: {Number(deployments.contracts.Game.linkedData.numMoves) -
-					($localState.avatar ? $localState.avatar.actions.filter((v) => v.type === 'move').length : 0)}
-			</div>
-		</div>
-	</div>
-{/if}

@@ -11,32 +11,15 @@ interface UsingGameTypes {
 
     /// @notice The set of possible action
     enum ActionType {
-        Enter,
-        Move,
+        Activate,
+        Send,
         Exit
     }
 
-    /// @notice Move struct that define the action, type and position
+    /// @notice the action and its associated data
     struct Action {
         ActionType actionType;
         uint128 data;
-    }
-
-    struct PublicAvatar {
-        address owner;
-        uint256 avatarID;
-        bool inGame;
-        uint64 position;
-        uint64 lastEpoch;
-        uint8 life;
-    }
-
-    struct AvatarResolved {
-        uint256 avatarID;
-        bool inGame;
-        uint64 position;
-        uint64 lastEpoch;
-        uint8 life;
     }
 
     /// @notice Config struct to configure the game instance
@@ -45,20 +28,9 @@ interface UsingGameTypes {
         uint256 commitPhaseDuration;
         uint256 revealPhaseDuration;
         ITime time;
-        IERC721 avatars;
-        uint256 numMoves;
     }
 
     // ------------------------------------------------------------------------
-
-    // ------------------------------------------------------------------------
-    // INTERNAL TYPES
-    // ------------------------------------------------------------------------
-
-    struct Area {
-        uint256 firstBytes32;
-        uint256 secondBytes32;
-    }
 
     // ------------------------------------------------------------------------
     // STORAGE TYPES
@@ -67,19 +39,6 @@ interface UsingGameTypes {
     struct Player {
         address owner;
         address controller;
-    }
-
-    struct Avatar {
-        bool inGame; // TODO startEpoch could act as InGame
-        uint64 position;
-        uint64 zoneIndex;
-        uint64 startEpoch;
-        uint64 lastEpoch;
-        uint8 life;
-    }
-
-    struct Zone {
-        uint256[] avatars;
     }
 
     struct Commitment {

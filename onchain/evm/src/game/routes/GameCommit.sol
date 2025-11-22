@@ -8,18 +8,18 @@ contract GameCommit is IGameCommit, UsingGameInternal {
     constructor(Config memory config) UsingGameInternal(config) {}
 
     function commit(
-        uint256 avatarID,
+        uint256 empireID,
         bytes24 commitmentHash,
         address payable payee
     ) external payable {
-        _makeCommitment(msg.sender, avatarID, commitmentHash);
+        _makeCommitment(msg.sender, empireID, commitmentHash);
 
         if (payee != address(0)) {
             payee.transfer(msg.value);
         }
     }
 
-    function cancelCommit(uint256 avatarID) external {
-        _cancelCommitment(msg.sender, avatarID);
+    function cancelCommit(uint256 empireID) external {
+        _cancelCommitment(msg.sender, empireID);
     }
 }

@@ -8,19 +8,19 @@ contract GameReveal is IGameReveal, UsingGameInternal {
     constructor(Config memory config) UsingGameInternal(config) {}
 
     function reveal(
-        uint256 avatarID,
+        uint256 empireID,
         Action[] calldata actions,
         bytes32 secret,
         address payable payee
     ) external payable {
-        _reveal(avatarID, actions, secret);
+        _reveal(empireID, actions, secret);
 
         if (payee != address(0)) {
             payee.transfer(msg.value);
         }
     }
 
-    function acknowledgeMissedReveal(uint256 avatarID) external {
-        _acknowledgeMissedReveal(avatarID);
+    function acknowledgeMissedReveal(uint256 empireID) external {
+        _acknowledgeMissedReveal(empireID);
     }
 }

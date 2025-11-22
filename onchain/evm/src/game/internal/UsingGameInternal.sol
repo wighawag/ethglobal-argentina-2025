@@ -111,7 +111,6 @@ abstract contract UsingGameInternal is
         emit CommitmentRevealed(
             empireID,
             epoch,
-            PositionUtils.getZone(newPosition),
             hashRevealed,
             actions[0:numActionsResolved]
         );
@@ -180,12 +179,12 @@ abstract contract UsingGameInternal is
             Action memory action = actions[i];
 
             // NWSE (North, West, South, East)
-            if (action.actionType == ActionType.Activate) {
-                _activate(resolution, action.data);
-            } else if (action.actionType == ActionType.Send) {
-                _send(resolution, action.data);
-            } else if (action.actionType == ActionType.Exit) {
-                _exit(resolution, action.data);
+            if (action.actionType == ActionType.AcquireSolarSystem) {
+                _acquireSolarSystem(resolution, action.data);
+            } else if (action.actionType == ActionType.SendFleet) {
+                _sendFleet(resolution, action.data);
+            } else if (action.actionType == ActionType.ResolveFleet) {
+                _resolveFleet(resolution, action.data);
             }
 
             if (resolution.stopProcessing) {
@@ -194,7 +193,7 @@ abstract contract UsingGameInternal is
         }
     }
 
-    function _activate(
+    function _acquireSolarSystem(
         ActionResolution memory resolution,
         uint128 actionData
     ) internal pure {
@@ -202,7 +201,7 @@ abstract contract UsingGameInternal is
         resolution.stopProcessing = true;
     }
 
-    function _send(
+    function _sendFleet(
         ActionResolution memory resolution,
         uint128 actionData
     ) internal view {
@@ -210,7 +209,7 @@ abstract contract UsingGameInternal is
         resolution.stopProcessing = true;
     }
 
-    function _exit(
+    function _resolveFleet(
         ActionResolution memory resolution,
         uint128 actionData
     ) internal pure {

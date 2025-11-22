@@ -6,12 +6,41 @@ import "./UsingGameTypes.sol";
 interface UsingGameEvents is UsingGameTypes {
     /// @notice A star system has been activated
     /// @param empireID the id of the empire activating the star system
-    /// @param owner the account authorized to get the avatar back
-    /// @param controller the account authorized to control the avatar in-game
-    event StarSystemActivated(
+    /// @param zone on which the star system is located
+    /// @param epoch at which the acquisition happe
+    /// @param solarSystemID star system being acquired
+    /// @param stake amount of take that the star system require
+    event SolarSystemAcquired(
         uint256 indexed empireID,
-        address indexed owner,
-        address controller
+        uint64 indexed zone,
+        uint64 indexed epoch,
+        uint256 solarSystemID,
+        uint256 stake // not needed, but useful for indexers // TODO? remove
+    );
+
+    event FleetSent(
+        uint256 indexed empireID,
+        uint64 indexed zone,
+        uint64 indexed epoch,
+        uint256 fromSolarSystemID, // TODO? would like to index this but we reacheed the 3 indexed param limit
+        uint256 fleetID,
+        uint256 numSpaceships
+    );
+
+    event SolarSystemUpdated(
+        uint256 indexed empireID,
+        uint64 indexed zone,
+        uint64 indexed epoch,
+        uint256 solarSystemID,
+        SolarSystemState state
+    );
+
+    event FleetArrived(
+        uint256 indexed empireID,
+        uint64 indexed zone,
+        uint64 indexed epoch,
+        uint256 fleetID, // TODO? would like to index this but we reacheed the 3 indexed param limit
+        uint256 toSolarSystemID
     );
 
     /// @notice A player has commited to make some actions and reveal them on the reveal phase
@@ -42,10 +71,10 @@ interface UsingGameEvents is UsingGameTypes {
     event CommitmentRevealed(
         uint256 indexed empireID,
         uint64 indexed epoch,
-        uint64 indexed zone,
         bytes24 commitmentHash,
         Action[] actions
     );
+    // TODO add furtherHash field to CommitmentRevealed for unbounded actions
 
     // DEBUG
     event PreviousCommitmentNotRevealedEvent(

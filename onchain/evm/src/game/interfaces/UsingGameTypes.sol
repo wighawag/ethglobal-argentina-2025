@@ -11,9 +11,9 @@ interface UsingGameTypes {
 
     /// @notice The set of possible action
     enum ActionType {
-        Activate,
-        Send,
-        Exit
+        AcquireSolarSystem,
+        SendFleet,
+        ResolveFleet
     }
 
     /// @notice the action and its associated data
@@ -39,6 +39,13 @@ interface UsingGameTypes {
     struct Player {
         address owner;
         address controller;
+    }
+
+    struct SolarSystemState {
+        uint256 empireID;
+        uint64 numSPaceships;
+        bool isActive;
+        uint64 lastUpdatedEpoch;
     }
 
     struct Commitment {

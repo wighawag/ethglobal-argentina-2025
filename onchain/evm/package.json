@@ -68,7 +68,7 @@
 		"fork:deploy": "pnpm compile --build-profile production && ldenv hardhat @=HARDHAT_FORK=@@MODE deploy @@",
 		"deploy:dev": "ldenv -d localhost pnpm :deploy+export @@",
 		"deploy:watch": "wait-on ./generated && ldenv -m localhost as-soon -w generated -w deploy pnpm run deploy:dev @@MODE @@",
-		"test": "hardhat test",
+		"test": "hardhat --network test test",
 		"test:watch": "wait-on ./generated && as-soon -w generated -w test hardhat test --no-compile",
 		"typescript:watch": "as-soon -w js pnpm typescript",
 		"format:check": "prettier --check .",

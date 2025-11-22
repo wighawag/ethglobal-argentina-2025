@@ -307,5 +307,65 @@ abstract contract UsingGameInternal is
         }
     }
 
+    function _planetData(uint256 location) internal view returns (bytes32) {
+        return keccak256(abi.encodePacked(0, location));
+    }
+
+    function _subLocation(
+        bytes32 data
+    ) internal pure returns (int8 subX, int8 subY) {
+        subX = 1 - int8(data.value8Mod(0, 3));
+        subY = 1 - int8(data.value8Mod(2, 3));
+    }
+
+    function _production(bytes32 data) internal pure returns (uint16) {
+        require(_exists(data), "PLANET_NOT_EXISTS");
+        // TODO TRY : 1800,2100,2400,2700,3000,3300,3600, 3600, 3600, 3600,4000,4400,4800,5400,6200,7200 ?
+
+        // 1800,2100,2400,2700,3000,3300,3600, 3600, 3600, 3600,4200,5400,6600,7800,9000,12000
+        // 0x0708083409600a8c0bb80ce40e100e100e100e101068151819c81e7823282ee0
+        return
+            data.normal16(
+                12,
+                0x0708083409600a8c0bb80ce40e100e100e100e101068151819c81e7823282ee0
+            ); // per hour
+    }
+
+    function _capWhenActive(uint16 production) internal view returns (uint256) {
+        return
+            _acquireNumSpaceships +
+            (uint256(production) * _productionCapAsDuration) /
+            1 hours;
+    }
+
+    function _attack(bytes32 data) internal pure returns (uint16) {
+        require(_exists(data), "PLANET_NOT_EXISTS");
+        return 4000 + data.normal8(20) * 400; // 4,000 - 7,000 - 10,000
+    }
+
+    function _defense(bytes32 data) internal pure returns (uint16) {
+        require(_exists(data), "PLANET_NOT_EXISTS");
+        return 4000 + data.normal8(28) * 400; // 4,000 - 7,000 - 10,000
+    }
+
+    function _speed(bytes32 data) internal pure returns (uint16) {
+        require(_exists(data), "PLANET_NOT_EXISTS");
+        return 5005 + data.normal8(36) * 333; // 5,005 - 7,502.5 - 10,000
+    }
+
+    function _natives(bytes32 data) internal pure returns (uint16) {
+        require(_exists(data), "PLANET_NOT_EXISTS");
+        return 15000 + data.normal8(44) * 3000; // 15,000 - 37,500 - 60,000
+    }
+
+    function _exists(bytes32 data) internal pure returns (bool) {
+        return data.value8Mod(52, 16) == 1; // 16 => 36 so : 1 planet per 6 (=24 min unit) square
+        // also:
+        // 20000 average starting numSpaceships (or max?)
+        // speed of min unit = 30 min ( 1 hour per square)
+        // production : 20000 per 6 hours
+        // exit : 3 days ? => 72 distance
+    }
+
     //-------------------------------------------------------------------------
 }

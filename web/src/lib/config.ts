@@ -1,6 +1,7 @@
 import { version } from '$app/environment';
 import deployments from './deployments';
 import { gasFee } from './onchain/gasFee';
+import { SpaceInfo } from './space';
 
 function getBigIntPowerOf10(n: bigint) {
 	if (n === 0n) return 1n; // Edge case: log10(0) is undefined, default to 10^0=1
@@ -30,3 +31,5 @@ export const creditsDivider = getBigIntPowerOf10(maxActionCost);
 gasFee.subscribe(() => {});
 
 console.log(`VERSION: ${version}`);
+
+export const spaceInfo = new SpaceInfo(deployments.contracts.Game.linkedData);

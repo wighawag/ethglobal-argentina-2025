@@ -1,19 +1,15 @@
-import type { LocalAction } from '$lib/private/localState';
 import type { Readable } from 'svelte/store';
 
-export type BaseEntity = { id: string; position: { x: number; y: number } };
+export type BaseEntity = { id: bigint; position: { x: number; y: number } };
 
-export type AvatarEntity = BaseEntity & {
+export type StarSystemEntity = BaseEntity & {
 	owner: string;
-	type: 'avatar';
-	life: number;
-	lastEpoch: number;
-	actions: LocalAction[];
+	type: 'starSystem';
 };
 
-export type Entity = AvatarEntity;
+export type Entity = StarSystemEntity;
 export type OnchainState = {
-	entities: { [id: string]: Entity };
+	entities: Map<bigint, Entity>;
 	epoch: number;
 };
 

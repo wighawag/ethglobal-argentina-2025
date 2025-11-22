@@ -1,11 +1,12 @@
 import { get, writable, type Readable } from 'svelte/store';
-import type { AvatarEntity, OnchainState } from './types';
+import type { StarSystemEntity, OnchainState } from './types';
 import { epochInfo, time } from '$lib/time';
-import { bigIntIDToXY, calculateVisibleZones, type Position } from 'dgame-contracts';
+import { bigIntIDToXY } from 'dgame-contracts';
 import { publicClient } from '$lib/connection';
 import deployments from '$lib/deployments';
 import { type GetContractEventsReturnType } from 'viem';
 import type { LocalAction } from '$lib/private/localState';
+import { spaceInfo } from '$lib/config';
 
 const Game = deployments.contracts.Game;
 
@@ -18,7 +19,7 @@ type Camera = {
 
 function defaultState() {
 	return {
-		entities: {},
+		entities: new Map(),
 		epoch: 0
 	};
 }
@@ -30,7 +31,7 @@ export function createDirectReadStore(camera: Readable<Camera>) {
 	let lastCamera: Camera = get(camera);
 	let now = get(time);
 	let lastEpoch = epochInfo.fromTime(now.value).currentEpoch;
-	let lastZones: bigint[] | undefined;
+	let lastLocations: bigint[] | undefined;
 
 	const _store = writable<OnchainState>($state, start);
 	function set(state: OnchainState) {
@@ -48,25 +49,35 @@ export function createDirectReadStore(camera: Readable<Camera>) {
 		);
 	}
 
-	function hasZonesChanged(zonesA?: bigint[], zonesB?: bigint[]) {
-		if (!zonesA) {
+	function hasLocationChanged(locationsA?: bigint[], locationsB?: bigint[]) {
+		if (!locationsA) {
 			return true;
 		}
-		if (!zonesB) {
+		if (!locationsB) {
 			return true;
 		}
-		if (zonesA == zonesB) {
+		if (locationsA == locationsB) {
 			return false;
 		}
-		if (zonesA.length != zonesB.length) {
+		if (locationsA.length != locationsB.length) {
 			return true;
 		}
-		for (let i = 0, l = zonesA.length; i < l; i++) {
-			if (zonesA[i] != zonesB[i]) {
+		for (let i = 0, l = locationsA.length; i < l; i++) {
+			if (locationsA[i] != locationsB[i]) {
 				return true;
 			}
 		}
 		return false;
+	}
+
+	function getVisibleLocations(camera: Camera) {
+		const locations = spaceInfo.getPlanetIDsInRect(
+			camera.x - camera.width,
+			camera.y - camera.height,
+			camera.x + camera.width,
+			camera.y + camera.height
+		);
+		return locations;
 	}
 
 	async function fetchState(camera: Camera, fromCameraUpdate: boolean) {
@@ -76,9 +87,9 @@ export function createDirectReadStore(camera: Readable<Camera>) {
 			throw new TimeNotSyncedError(`time not synced yet`);
 		}
 
-		const zones = calculateVisibleZones(camera);
+		const locations = getVisibleLocations(camera);
 
-		if (fromCameraUpdate && !hasZonesChanged(lastZones, zones)) {
+		if (fromCameraUpdate && !hasLocationChanged(lastLocations, locations)) {
 			return;
 		}
 
@@ -89,18 +100,18 @@ export function createDirectReadStore(camera: Readable<Camera>) {
 
 		const result = await publicClient.readContract({
 			...Game,
-			functionName: 'getStarSystemsInMultipleZones',
-			args: [zones, 0n, 100n] // TODO use pagination
+			functionName: 'getStarSystems',
+			args: [locations] // TODO use pagination
 		});
 		if (fromCameraUpdate) {
-			const newZones = calculateVisibleZones(lastCamera);
-			if (hasZonesChanged(zones, newZones)) {
+			const newLocations = getVisibleLocations(lastCamera);
+			if (hasLocationChanged(locations, newLocations)) {
 				// if changed while fetching, we stop right here
 				return;
 			}
 		}
 
-		const epoch = result[2];
+		const epoch = result[1];
 
 		console.debug(`fetched state from epoch: ${epoch}`);
 
@@ -124,65 +135,30 @@ export function createDirectReadStore(camera: Readable<Camera>) {
 			fromBlock = 0;
 		}
 
-		const events = await publicClient.getContractEvents({
-			...Game,
-			eventName: 'CommitmentRevealed',
-			args: {
-				epoch: [epoch - 1n],
-				zone: zones
-			},
-			strict: true,
-			fromBlock: BigInt(fromBlock),
-			toBlock: BigInt(currentBlockNumber)
-		});
-		// console.debug(allEvents);
-
-		const avatarEvents: Map<
-			bigint,
-			GetContractEventsReturnType<typeof Game.abi, 'CommitmentRevealed', true>[0]
-		> = new Map();
-		for (const event of events) {
-			avatarEvents.set(event.args.avatarID, event);
-		}
-
 		const state: OnchainState = defaultState();
 
 		state.epoch = Number(epoch);
 
-		for (const entityFetched of result[0]) {
-			const id = entityFetched.avatarID.toString();
+		for (let i = 0; i < locations.length; i++) {
+			const entityFetched = result[0][i];
+			const location = locations[i];
 
-			let actions: LocalAction[] = [];
+			const id = entityFetched.empireID;
 
-			const event = avatarEvents.get(entityFetched.avatarID);
-			if (event) {
-				actions = event.args.actions.map((v) => {
-					const coords = bigIntIDToXY(v.data);
-					return {
-						type: v.actionType === 0 ? 'enter' : v.actionType === 1 ? 'move' : 'exit',
-						x: coords.x,
-						y: coords.y
-					};
-				});
-			}
-
-			const { x, y } = bigIntIDToXY(entityFetched.position);
-			const entity: AvatarEntity = {
+			const { x, y } = bigIntIDToXY(location);
+			const entity: StarSystemEntity = {
 				id,
 				owner: entityFetched.owner,
-				type: 'avatar',
+				type: 'starSystem',
 				position: {
 					x: Number(x),
 					y: Number(y)
-				},
-				life: entityFetched.life,
-				lastEpoch: Number(entityFetched.lastEpoch),
-				actions
+				}
 			};
-			state.entities[id] = entity;
+			state.entities.set(id, entity);
 		}
 
-		lastZones = zones;
+		lastLocations = locations;
 		set(state);
 	}
 

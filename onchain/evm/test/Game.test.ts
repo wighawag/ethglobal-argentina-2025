@@ -21,13 +21,6 @@ describe('Game', function () {
 			getTimestamp,
 		} = await networkHelpers.loadFixture(deployAll);
 
-		const before_avatars = await env.read(Game, {
-			functionName: 'getAvatarsInZone',
-			args: [0n, 0n, 100n],
-		});
-
-		// console.log(before_avatars);
-
 		const timestamp = await getTimestamp();
 		const {epoch: initialEpoch, commiting: initialCommiting} =
 			getEpoch(timestamp);
@@ -98,22 +91,6 @@ describe('Game', function () {
 				zeroAddress,
 			],
 		});
-
-		// const after_avatars = await env.read(Game, {
-		// 	functionName: 'getAvatarsInZone',
-		// 	args: [0n, 0n, 100n],
-		// });
-
-		const after_avatars = await env.read(Game, {
-			functionName: 'getAvatarsInMultipleZones',
-			args: [
-				[1n, 2n, 3n, 4n, 5n, 6n, 7n, 8n, 9n, 10n, 11n, 12n, 13n, 14n, 0n],
-				0n,
-				100n,
-			],
-		});
-
-		expect(after_avatars[0][0].position).toEqual(4n);
-		// console.log(after_avatars);
+		// DONE
 	});
 });

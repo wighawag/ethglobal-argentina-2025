@@ -45,4 +45,11 @@ interface UsingGameErrors is UsingGameTypes {
     /// @notice Player have to reveal if they can
     /// prevent player from acknowledging missed reveal if there is still time to reveal.
     error CanStillReveal();
+
+    /// @notice happen when attempting to send a non-avatar ERC721 to the game
+    error OnlyAvatarsAreAccepted();
+
+    /// @notice happen when attempting to withdraw an avatar still in command of an empire
+    /// @param avatarID the id of the avatar
+    error AvatarStillAttachedToEmpire(uint256 avatarID);
 }

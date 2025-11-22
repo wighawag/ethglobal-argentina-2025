@@ -4,6 +4,20 @@ pragma solidity ^0.8.0;
 import "./UsingGameTypes.sol";
 
 interface UsingGameEvents is UsingGameTypes {
+    /// @notice An avatar has been deposited, ready to enter
+    /// @param avatarID the id of the NFT being deposited
+    /// @param owner the account authorized to get the avatar back
+    /// @param controller the account authorized to control the avatar in-game
+    event AvatarDeposited(
+        uint256 indexed avatarID,
+        address indexed owner,
+        address controller
+    );
+
+    /// @notice A avatar has been withdrawn
+    /// @param avatarID the id of the NFT being transfered out
+    event AvatarWithdrawn(uint256 indexed avatarID);
+
     /// @notice A star system has been activated
     /// @param empireID the id of the empire activating the star system
     /// @param zone on which the star system is located

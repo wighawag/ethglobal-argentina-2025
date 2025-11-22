@@ -23,7 +23,8 @@ contract GameGetters is IGameGetters, UsingGameInternal {
                 startTime: START_TIME,
                 commitPhaseDuration: COMMIT_PHASE_DURATION,
                 revealPhaseDuration: REVEAL_PHASE_DURATION,
-                time: TIME
+                time: TIME,
+                avatars: AVATARS
             });
     }
 }

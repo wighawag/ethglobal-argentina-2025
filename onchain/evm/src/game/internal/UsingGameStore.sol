@@ -11,12 +11,19 @@ abstract contract UsingGameStore is UsingGameTypes, UsingVirtualTime {
     uint256 internal immutable COMMIT_PHASE_DURATION;
     /// @notice the duration of the reveal phase in seconds
     uint256 internal immutable REVEAL_PHASE_DURATION;
+    /// @notice the avatars NFT collection
+    IERC721 internal immutable AVATARS;
 
     // TODO use
     /// @notice the number of action a hash represent, after that players make use of further reveal transactions
     uint8 internal constant MAX_NUM_ACTIONS_PER_HASH = 32;
 
     mapping(uint256 => Player) internal _players;
+    mapping(uint256 => Avatar) internal _avatars;
+
+    // allow to get all avatars per owner in the game
+    mapping(address owner => uint256[]) internal _ownedAvatars;
+    mapping(uint256 avatarID => uint256) internal _ownedAvatarsIndex;
 
     mapping(uint256 => Commitment) internal _commitments;
 
@@ -26,5 +33,6 @@ abstract contract UsingGameStore is UsingGameTypes, UsingVirtualTime {
         START_TIME = config.startTime;
         COMMIT_PHASE_DURATION = config.commitPhaseDuration;
         REVEAL_PHASE_DURATION = config.revealPhaseDuration;
+        AVATARS = config.avatars;
     }
 }

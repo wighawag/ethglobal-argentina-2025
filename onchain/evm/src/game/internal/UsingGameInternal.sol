@@ -18,6 +18,47 @@ abstract contract UsingGameInternal is
     //-------------------------------------------------------------------------
     // ENTRY POINTS
     //-------------------------------------------------------------------------
+    function _deposit(
+        uint256 avatarID,
+        address owner,
+        address controller
+    ) internal {
+        _players[avatarID] = Player({owner: owner, controller: controller});
+
+        uint256 length = _ownedAvatars[owner].length;
+        _ownedAvatars[owner].push(avatarID);
+        _ownedAvatarsIndex[avatarID] = length;
+
+        emit AvatarDeposited(avatarID, owner, controller);
+    }
+
+    function _withdraw(address owner, uint256 avatarID, address to) internal {
+        if (_players[avatarID].owner != owner) {
+            revert UsingGameErrors.NotAuthorizedOwner(owner);
+        }
+
+        if (_avatars[avatarID].empire != 0) {
+            revert UsingGameErrors.AvatarStillAttachedToEmpire(avatarID);
+        }
+
+        // --------------------------------------------------------------------
+        // REMOVING FROM LIST
+        // --------------------------------------------------------------------
+        uint256[] storage _ownedAvatarsByOwner = _ownedAvatars[owner];
+        uint256 lastAvatarIndex = _ownedAvatarsByOwner.length - 1;
+        uint256 avatarIndex = _ownedAvatarsIndex[avatarID];
+        if (avatarIndex != lastAvatarIndex) {
+            uint256 lastAvatarId = _ownedAvatarsByOwner[lastAvatarIndex];
+
+            _ownedAvatarsByOwner[avatarIndex] = lastAvatarId;
+            _ownedAvatarsIndex[lastAvatarId] = avatarIndex;
+        }
+        delete _ownedAvatarsIndex[avatarID];
+        _ownedAvatarsByOwner.pop();
+        // --------------------------------------------------------------------
+
+        AVATARS.safeTransferFrom(address(this), to, avatarID);
+    }
 
     function _makeCommitment(
         address controller,

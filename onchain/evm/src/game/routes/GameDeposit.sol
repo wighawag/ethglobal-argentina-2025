@@ -35,7 +35,7 @@ contract GameDeposit is IGameDeposit, UsingGameInternal, IERC721Receiver {
         if (msg.sender != address(AVATARS)) {
             revert OnlyAvatarsAreAccepted();
         }
-        if (data.length != 64) {
+        if (data.length != 96) {
             revert UsingGameErrors.InvalidData();
         }
         (uint256 empireSubID, address owner, address controller) = abi.decode(

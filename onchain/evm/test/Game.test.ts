@@ -25,9 +25,11 @@ describe('Game', function () {
 		const {epoch: initialEpoch, commiting: initialCommiting} =
 			getEpoch(timestamp);
 
-		const subID = 0n;
-		const avatarID = (BigInt(unnamedAccounts[0]) << 96n) + subID;
+		const avatarSubID = 0n;
+		const avatarID = (BigInt(unnamedAccounts[0]) << 96n) + avatarSubID;
 
+		const empireSubID = 0n;
+		const empireID = (BigInt(unnamedAccounts[0]) << 96n) + empireSubID;
 		console.log({
 			Game: Game.address,
 			avatarID,
@@ -38,10 +40,10 @@ describe('Game', function () {
 			functionName: 'purchase',
 			args: [
 				Game.address,
-				subID,
+				avatarSubID,
 				encodeAbiParameters(
-					[{type: 'address'}, {type: 'address'}],
-					[unnamedAccounts[0], unnamedAccounts[0]],
+					[{type: 'uint256'}, {type: 'address'}, {type: 'address'}],
+					[empireSubID, unnamedAccounts[0], unnamedAccounts[0]],
 				),
 				zeroAddress,
 				0n,

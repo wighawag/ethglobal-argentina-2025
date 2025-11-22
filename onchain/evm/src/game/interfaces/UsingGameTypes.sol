@@ -29,6 +29,9 @@ interface UsingGameTypes {
         uint256 revealPhaseDuration;
         ITime time;
         IERC721 avatars;
+        bytes32 genesisHash;
+        uint256 numSpaceshipsOnActivation;
+        uint256 productionCapAsDuration;
     }
 
     struct PublicStarSystem {
@@ -36,6 +39,7 @@ interface UsingGameTypes {
         uint64 numSpaceships;
         bool isActive;
         uint64 lastUpdatedEpoch;
+        address owner;
     }
 
     // ------------------------------------------------------------------------

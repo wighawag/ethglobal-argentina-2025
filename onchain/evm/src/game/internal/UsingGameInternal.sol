@@ -7,12 +7,15 @@ import "../interfaces/UsingGameErrors.sol";
 import "../../utils/PositionUtils.sol";
 import "../../utils/StringUtils.sol";
 import "hardhat/console.sol";
+import "../../utils/Extraction.sol";
 
 abstract contract UsingGameInternal is
     UsingGameStore,
     UsingGameEvents,
     UsingGameErrors
 {
+    using Extraction for bytes32;
+
     constructor(Config memory config) UsingGameStore(config) {}
 
     //-------------------------------------------------------------------------
@@ -178,7 +181,8 @@ abstract contract UsingGameInternal is
             empireID: starSystemState.empireID,
             numSpaceships: starSystemState.numSpaceships,
             isActive: starSystemState.isActive,
-            lastUpdatedEpoch: starSystemState.lastUpdatedEpoch
+            lastUpdatedEpoch: starSystemState.lastUpdatedEpoch,
+            owner: _empires[starSystemState.empireID].owner
         });
     }
 
@@ -194,7 +198,8 @@ abstract contract UsingGameInternal is
                 empireID: starSystemState.empireID,
                 numSpaceships: starSystemState.numSpaceships,
                 isActive: starSystemState.isActive,
-                lastUpdatedEpoch: starSystemState.lastUpdatedEpoch
+                lastUpdatedEpoch: starSystemState.lastUpdatedEpoch,
+                owner: _empires[starSystemState.empireID].owner
             });
         }
     }
@@ -308,7 +313,7 @@ abstract contract UsingGameInternal is
     }
 
     function _planetData(uint256 location) internal view returns (bytes32) {
-        return keccak256(abi.encodePacked(0, location));
+        return keccak256(abi.encodePacked(GENESIS_HASH, location));
     }
 
     function _subLocation(
@@ -333,8 +338,8 @@ abstract contract UsingGameInternal is
 
     function _capWhenActive(uint16 production) internal view returns (uint256) {
         return
-            _acquireNumSpaceships +
-            (uint256(production) * _productionCapAsDuration) /
+            NUM_SPACESHIPS_ON_ACTIVATION +
+            (uint256(production) * PRODUCTION_CAP_AS_DURATION) /
             1 hours;
     }
 

@@ -24,7 +24,10 @@ contract GameGetters is IGameGetters, UsingGameInternal {
                 commitPhaseDuration: COMMIT_PHASE_DURATION,
                 revealPhaseDuration: REVEAL_PHASE_DURATION,
                 time: TIME,
-                avatars: AVATARS
+                avatars: AVATARS,
+                genesisHash: GENESIS_HASH,
+                numSpaceshipsOnActivation: NUM_SPACESHIPS_ON_ACTIVATION,
+                productionCapAsDuration: PRODUCTION_CAP_AS_DURATION
             });
     }
 

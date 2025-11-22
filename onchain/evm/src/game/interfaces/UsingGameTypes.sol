@@ -37,16 +37,19 @@ interface UsingGameTypes {
     // STORAGE TYPES
     // ------------------------------------------------------------------------
 
-    struct Player {
+    // empireID -> Empire
+    struct Empire {
         address owner;
         address controller;
+        uint256 avatarID;
     }
 
+    // avatarID -> Avatar
     struct Avatar {
         uint256 empire;
     }
 
-    struct SolarSystemState {
+    struct StarSystemState {
         uint256 empireID;
         uint64 numSPaceships;
         bool isActive;

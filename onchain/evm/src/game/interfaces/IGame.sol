@@ -29,17 +29,16 @@ interface IGameReveal is UsingGameTypes {
 interface IGameDeposit is UsingGameTypes {
     function deposit(
         uint256 avatarID,
+        uint256 empireID,
         address controller,
         address payable payee
     ) external payable;
 
-    function withdraw(uint256 avatarID, address to) external;
-
-    function avatarsPerOwner(
+    function empiresPerOwner(
         address owner,
         uint256 startIndex,
         uint256 limit
-    ) external view returns (uint256[] memory avatarIDs, bool more);
+    ) external view returns (uint256[] memory empireIDs, bool more);
 }
 
 interface IGameGetters is UsingGameTypes {

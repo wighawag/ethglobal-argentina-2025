@@ -22,6 +22,7 @@ export default deployScript(
 			{name: 'Getters', artifact: artifacts.GameGetters, args: [config]},
 			{name: 'Commit', artifact: artifacts.GameCommit, args: [config]},
 			{name: 'Reveal', artifact: artifacts.GameReveal, args: [config]},
+			{name: 'Deposit', artifact: artifacts.GameDeposit, args: [config]},
 		];
 
 		const Game = await deployViaProxy<Abi_IGame>(

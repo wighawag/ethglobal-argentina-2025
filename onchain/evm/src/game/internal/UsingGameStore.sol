@@ -18,12 +18,12 @@ abstract contract UsingGameStore is UsingGameTypes, UsingVirtualTime {
     /// @notice the number of action a hash represent, after that players make use of further reveal transactions
     uint8 internal constant MAX_NUM_ACTIONS_PER_HASH = 32;
 
-    mapping(uint256 => Player) internal _players;
     mapping(uint256 => Avatar) internal _avatars;
+    mapping(uint256 => Empire) internal _empires;
 
-    // allow to get all avatars per owner in the game
-    mapping(address owner => uint256[]) internal _ownedAvatars;
-    mapping(uint256 avatarID => uint256) internal _ownedAvatarsIndex;
+    // allow to get all empires per owner in the game
+    mapping(address owner => uint256[]) internal _ownedEmpires;
+    mapping(uint256 avatarID => uint256) internal _ownedEmpiresIndex;
 
     mapping(uint256 => Commitment) internal _commitments;
 

@@ -11,10 +11,11 @@ contract GameDeposit is IGameDeposit, UsingGameInternal, IERC721Receiver {
     // TODO deposit via permit
     function deposit(
         uint256 avatarID,
+        uint256 empireSubID,
         address controller,
         address payable payee
     ) external payable {
-        _deposit(avatarID, msg.sender, controller);
+        _deposit(avatarID, empireSubID, msg.sender, controller);
 
         // transfer Character to the game
         AVATARS.transferFrom(msg.sender, address(this), avatarID);
@@ -37,25 +38,21 @@ contract GameDeposit is IGameDeposit, UsingGameInternal, IERC721Receiver {
         if (data.length != 64) {
             revert UsingGameErrors.InvalidData();
         }
-        (address owner, address controller) = abi.decode(
+        (uint256 empireSubID, address owner, address controller) = abi.decode(
             data,
-            (address, address)
+            (uint256, address, address)
         );
-        _deposit(tokenID, owner, controller);
+        _deposit(tokenID, empireSubID, owner, controller);
         return IERC721Receiver.onERC721Received.selector;
     }
 
-    function withdraw(uint256 avatarID, address to) external {
-        _withdraw(msg.sender, avatarID, to);
-    }
-
-    function avatarsPerOwner(
+    function empiresPerOwner(
         address owner,
         uint256 startIndex,
         uint256 limit
     ) external view returns (uint256[] memory avatarIDs, bool more) {
         (uint64 epoch, ) = _epoch();
-        uint256 total = _ownedAvatars[owner].length;
+        uint256 total = _ownedEmpires[owner].length;
         if (startIndex >= total) {
             return (new uint256[](0), false);
         }
@@ -65,8 +62,8 @@ contract GameDeposit is IGameDeposit, UsingGameInternal, IERC721Receiver {
         uint256[] memory list = new uint256[](actualLimit);
 
         for (uint256 i = 0; i < actualLimit; i++) {
-            uint256 avatarID = _ownedAvatars[owner][startIndex + i];
-            list[i] = avatarID;
+            uint256 empireID = _ownedEmpires[owner][startIndex + i];
+            list[i] = empireID;
         }
 
         return (list, actualLimit != limit);

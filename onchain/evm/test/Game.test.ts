@@ -27,6 +27,12 @@ describe('Game', function () {
 
 		const subID = 0n;
 		const avatarID = (BigInt(unnamedAccounts[0]) << 96n) + subID;
+
+		console.log({
+			Game: Game.address,
+			avatarID,
+			value: BigInt(AvatarsSale.linkedData!.paymentAmount as string),
+		});
 		await env.execute(AvatarsSale, {
 			account: env.unnamedAccounts[0],
 			functionName: 'purchase',

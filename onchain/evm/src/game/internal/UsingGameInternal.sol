@@ -20,44 +20,31 @@ abstract contract UsingGameInternal is
     //-------------------------------------------------------------------------
     function _deposit(
         uint256 avatarID,
+        uint256 empireSubID,
         address owner,
         address controller
     ) internal {
-        _players[avatarID] = Player({owner: owner, controller: controller});
-
-        uint256 length = _ownedAvatars[owner].length;
-        _ownedAvatars[owner].push(avatarID);
-        _ownedAvatarsIndex[avatarID] = length;
-
-        emit AvatarDeposited(avatarID, owner, controller);
-    }
-
-    function _withdraw(address owner, uint256 avatarID, address to) internal {
-        if (_players[avatarID].owner != owner) {
-            revert UsingGameErrors.NotAuthorizedOwner(owner);
+        uint256 empireID = (uint256(uint160(owner)) << 96) + empireSubID;
+        if (_empires[empireID].avatarID != 0) {
+            revert EmpireHasAlreadyAnAvatar(empireID);
         }
+        _empires[empireID] = Empire({
+            owner: owner,
+            controller: controller,
+            avatarID: avatarID
+        });
 
-        if (_avatars[avatarID].empire != 0) {
-            revert UsingGameErrors.AvatarStillAttachedToEmpire(avatarID);
-        }
+        // TODO mint Empire and handle transfer here to to update controller and owner
 
-        // --------------------------------------------------------------------
-        // REMOVING FROM LIST
-        // --------------------------------------------------------------------
-        uint256[] storage _ownedAvatarsByOwner = _ownedAvatars[owner];
-        uint256 lastAvatarIndex = _ownedAvatarsByOwner.length - 1;
-        uint256 avatarIndex = _ownedAvatarsIndex[avatarID];
-        if (avatarIndex != lastAvatarIndex) {
-            uint256 lastAvatarId = _ownedAvatarsByOwner[lastAvatarIndex];
+        // could make the Game the NFT contract
+        //   but then what about StarSystem ?
+        //  one of them or both could have separate NFT contract whose getters calls in the Game contract
+        //  and then for transfer, the Game call into them after each write to ensure events are emitted from them
 
-            _ownedAvatarsByOwner[avatarIndex] = lastAvatarId;
-            _ownedAvatarsIndex[lastAvatarId] = avatarIndex;
-        }
-        delete _ownedAvatarsIndex[avatarID];
-        _ownedAvatarsByOwner.pop();
-        // --------------------------------------------------------------------
-
-        AVATARS.safeTransferFrom(address(this), to, avatarID);
+        uint256 length = _ownedEmpires[owner].length;
+        _ownedEmpires[owner].push(avatarID);
+        _ownedEmpiresIndex[empireID] = length;
+        // TODO event
     }
 
     function _makeCommitment(
@@ -65,7 +52,7 @@ abstract contract UsingGameInternal is
         uint256 empireID,
         bytes24 commitmentHash
     ) internal {
-        if (_players[empireID].controller != controller) {
+        if (_empires[empireID].controller != controller) {
             revert UsingGameErrors.NotAuthorizedController(controller);
         }
 
@@ -95,7 +82,7 @@ abstract contract UsingGameInternal is
     }
 
     function _cancelCommitment(address controller, uint256 empireID) internal {
-        if (_players[empireID].controller != controller) {
+        if (_empires[empireID].controller != controller) {
             revert UsingGameErrors.NotAuthorizedController(controller);
         }
 

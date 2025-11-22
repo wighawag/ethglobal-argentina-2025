@@ -52,4 +52,8 @@ interface UsingGameErrors is UsingGameTypes {
     /// @notice happen when attempting to withdraw an avatar still in command of an empire
     /// @param avatarID the id of the avatar
     error AvatarStillAttachedToEmpire(uint256 avatarID);
+
+    /// @notice happen when attempting to withdraw an avatar still in command of an empire
+    /// @param empireID the id of the empire
+    error EmpireHasAlreadyAnAvatar(uint256 empireID);
 }

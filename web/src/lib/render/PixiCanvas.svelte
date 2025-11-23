@@ -6,10 +6,8 @@
 	import { type Writable } from 'svelte/store';
 	import type { Camera, CameraWatcher } from './camera';
 	import type { Renderer } from './renderer';
-	import { createKeyboardController } from '$lib/ui/keyboard-controller';
 	import type { EventEnitter } from './eventEmitter';
 	import { startListening, stopListening } from '$lib/operations';
-	import { createGamepadController } from '$lib/ui/gamepads';
 
 	// import { gsap } from 'gsap';
 	// import { PixiPlugin } from 'gsap/PixiPlugin';
@@ -53,9 +51,6 @@
 		const minHeight = 5 * cellSize;
 		const maxWidth = 50 * cellSize;
 		const maxHeight = 50 * cellSize;
-
-		const keyboardController = createKeyboardController(eventEmitter);
-		const gamepadController = createGamepadController(eventEmitter);
 
 		let isDragging = false;
 		let dragStartPos = { x: 0, y: 0 };
@@ -122,8 +117,6 @@
 			viewport.moveCenter(0, 0);
 
 			renderer.onAppStarted(viewport);
-			keyboardController.start();
-			gamepadController.start();
 			// TODO move this from here
 			startListening();
 
@@ -226,8 +219,6 @@
 			if (initialised) {
 				console.log(`destroying Pixi Application...`);
 				stopListening();
-				keyboardController.stop();
-				gamepadController.stop();
 				renderer.onAppStopped();
 				app.destroy();
 			} else {
@@ -236,8 +227,6 @@
 					console.log(`destroying Pixi Application...`);
 					// try {
 					stopListening();
-					keyboardController.stop();
-					gamepadController.stop();
 					renderer.onAppStopped();
 					// } finally {
 					app.destroy();

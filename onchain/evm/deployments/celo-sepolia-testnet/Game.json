@@ -236,7 +236,7 @@
         {
           "indexed": false,
           "internalType": "uint256",
-          "name": "toSolarSystemID",
+          "name": "toStarSystemID",
           "type": "uint256"
         }
       ],
@@ -267,7 +267,7 @@
         {
           "indexed": false,
           "internalType": "uint256",
-          "name": "fromSolarSystemID",
+          "name": "fromStarSystemID",
           "type": "uint256"
         },
         {
@@ -335,7 +335,7 @@
         {
           "indexed": false,
           "internalType": "uint256",
-          "name": "solarSystemID",
+          "name": "starSystemID",
           "type": "uint256"
         },
         {
@@ -345,7 +345,7 @@
           "type": "uint256"
         }
       ],
-      "name": "SolarSystemAcquired",
+      "name": "StarSystemAcquired",
       "type": "event"
     },
     {
@@ -372,7 +372,7 @@
         {
           "indexed": false,
           "internalType": "uint256",
-          "name": "solarSystemID",
+          "name": "starSystemID",
           "type": "uint256"
         },
         {
@@ -404,7 +404,7 @@
           "type": "tuple"
         }
       ],
-      "name": "SolarSystemUpdated",
+      "name": "StarSystemUpdated",
       "type": "event"
     },
     {
@@ -797,120 +797,6 @@
       ],
       "stateMutability": "nonpayable",
       "type": "function"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": true,
-          "internalType": "address",
-          "name": "previousOwner",
-          "type": "address"
-        },
-        {
-          "indexed": true,
-          "internalType": "address",
-          "name": "newOwner",
-          "type": "address"
-        }
-      ],
-      "name": "OwnershipTransferred",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": true,
-          "internalType": "address",
-          "name": "previousImplementation",
-          "type": "address"
-        },
-        {
-          "indexed": true,
-          "internalType": "address",
-          "name": "newImplementation",
-          "type": "address"
-        }
-      ],
-      "name": "ProxyImplementationUpdated",
-      "type": "event"
-    },
-    {
-      "inputs": [],
-      "name": "owner",
-      "outputs": [
-        {
-          "internalType": "address",
-          "name": "",
-          "type": "address"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "bytes4",
-          "name": "id",
-          "type": "bytes4"
-        }
-      ],
-      "name": "supportsInterface",
-      "outputs": [
-        {
-          "internalType": "bool",
-          "name": "",
-          "type": "bool"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "newOwner",
-          "type": "address"
-        }
-      ],
-      "name": "transferOwnership",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "newImplementation",
-          "type": "address"
-        }
-      ],
-      "name": "upgradeTo",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "newImplementation",
-          "type": "address"
-        },
-        {
-          "internalType": "bytes",
-          "name": "data",
-          "type": "bytes"
-        }
-      ],
-      "name": "upgradeToAndCall",
-      "outputs": [],
-      "stateMutability": "payable",
-      "type": "function"
     }
   ],
   "contractName": "Router10X60",
@@ -951,12 +837,12 @@
           "epoch": "epoch number on which this commit belongs to"
         }
       },
-      "SolarSystemAcquired(uint256,uint64,uint64,uint256,uint256)": {
+      "StarSystemAcquired(uint256,uint64,uint64,uint256,uint256)": {
         "params": {
           "empireID": "the id of the empire activating the star system",
           "epoch": "at which the acquisition happe",
-          "solarSystemID": "star system being acquired",
           "stake": "amount of take that the star system require",
+          "starSystemID": "star system being acquired",
           "zone": "on which the star system is located"
         }
       }
@@ -1012,7 +898,7 @@
       "CommitmentVoid(uint256,uint64)": {
         "notice": "A player has acknowledged its failure to reveal its previous commitment"
       },
-      "SolarSystemAcquired(uint256,uint64,uint64,uint256,uint256)": {
+      "StarSystemAcquired(uint256,uint64,uint64,uint256,uint256)": {
         "notice": "A star system has been activated"
       }
     },
@@ -1097,25 +983,15 @@
   "solcInput": "{\n  \"language\": \"Solidity\",\n  \"sources\": {\n    \"solc_0.8/proxy/EIP173Proxy.sol\": {\n      \"content\": \"// SPDX-License-Identifier: MIT\\npragma solidity ^0.8.0;\\n\\nimport \\\"./Proxy.sol\\\";\\n\\ninterface ERC165 {\\n    function supportsInterface(bytes4 id) external view returns (bool);\\n}\\n\\n///@notice Proxy implementing EIP173 for ownership management\\ncontract EIP173Proxy is Proxy {\\n    // ////////////////////////// EVENTS ///////////////////////////////////////////////////////////////////////\\n\\n    event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);\\n\\n    // /////////////////////// CONSTRUCTOR //////////////////////////////////////////////////////////////////////\\n\\n    constructor(\\n        address implementationAddress,\\n        address ownerAddress,\\n        bytes memory data\\n    ) payable {\\n        _setOwner(ownerAddress);\\n        _setImplementation(implementationAddress, data);\\n    }\\n\\n    // ///////////////////// EXTERNAL ///////////////////////////////////////////////////////////////////////////\\n\\n    function owner() external view returns (address) {\\n        return _owner();\\n    }\\n\\n    function supportsInterface(bytes4 id) external view returns (bool) {\\n        if (id == 0x01ffc9a7 || id == 0x7f5828d0) {\\n            return true;\\n        }\\n        if (id == 0xFFFFFFFF) {\\n            return false;\\n        }\\n\\n        ERC165 implementation;\\n        // solhint-disable-next-line security/no-inline-assembly\\n        assembly {\\n            implementation := sload(0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc)\\n        }\\n\\n        // Technically this is not standard compliant as ERC-165 require 30,000 gas which that call cannot ensure\\n        // because it is itself inside `supportsInterface` that might only get 30,000 gas.\\n        // In practise this is unlikely to be an issue.\\n        try implementation.supportsInterface(id) returns (bool support) {\\n            return support;\\n        } catch {\\n            return false;\\n        }\\n    }\\n\\n    function transferOwnership(address newOwner) external onlyOwner {\\n        _setOwner(newOwner);\\n    }\\n\\n    function upgradeTo(address newImplementation) external onlyOwner {\\n        _setImplementation(newImplementation, \\\"\\\");\\n    }\\n\\n    function upgradeToAndCall(address newImplementation, bytes calldata data) external payable onlyOwner {\\n        _setImplementation(newImplementation, data);\\n    }\\n\\n    // /////////////////////// MODIFIERS ////////////////////////////////////////////////////////////////////////\\n\\n    modifier onlyOwner() {\\n        require(msg.sender == _owner(), \\\"NOT_AUTHORIZED\\\");\\n        _;\\n    }\\n\\n    // ///////////////////////// INTERNAL //////////////////////////////////////////////////////////////////////\\n\\n    function _owner() internal view returns (address adminAddress) {\\n        // solhint-disable-next-line security/no-inline-assembly\\n        assembly {\\n            adminAddress := sload(0xb53127684a568b3173ae13b9f8a6016e243e63b6e8ee1178d6a717850b5d6103)\\n        }\\n    }\\n\\n    function _setOwner(address newOwner) internal {\\n        address previousOwner = _owner();\\n        // solhint-disable-next-line security/no-inline-assembly\\n        assembly {\\n            sstore(0xb53127684a568b3173ae13b9f8a6016e243e63b6e8ee1178d6a717850b5d6103, newOwner)\\n        }\\n        emit OwnershipTransferred(previousOwner, newOwner);\\n    }\\n}\\n\"\n    },\n    \"solc_0.8/proxy/Proxy.sol\": {\n      \"content\": \"// SPDX-License-Identifier: MIT\\npragma solidity ^0.8.0;\\n\\n// EIP-1967\\nabstract contract Proxy {\\n    // /////////////////////// EVENTS ///////////////////////////////////////////////////////////////////////////\\n\\n    event ProxyImplementationUpdated(address indexed previousImplementation, address indexed newImplementation);\\n\\n    // ///////////////////// EXTERNAL ///////////////////////////////////////////////////////////////////////////\\n\\n    receive() external payable virtual {\\n        revert(\\\"ETHER_REJECTED\\\"); // explicit reject by default\\n    }\\n\\n    fallback() external payable {\\n        _fallback();\\n    }\\n\\n    // ///////////////////////// INTERNAL //////////////////////////////////////////////////////////////////////\\n\\n    function _fallback() internal {\\n        // solhint-disable-next-line security/no-inline-assembly\\n        assembly {\\n            let implementationAddress := sload(0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc)\\n            calldatacopy(0x0, 0x0, calldatasize())\\n            let success := delegatecall(gas(), implementationAddress, 0x0, calldatasize(), 0, 0)\\n            let retSz := returndatasize()\\n            returndatacopy(0, 0, retSz)\\n            switch success\\n            case 0 {\\n                revert(0, retSz)\\n            }\\n            default {\\n                return(0, retSz)\\n            }\\n        }\\n    }\\n\\n    function _setImplementation(address newImplementation, bytes memory data) internal {\\n        address previousImplementation;\\n        // solhint-disable-next-line security/no-inline-assembly\\n        assembly {\\n            previousImplementation := sload(0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc)\\n        }\\n\\n        // solhint-disable-next-line security/no-inline-assembly\\n        assembly {\\n            sstore(0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc, newImplementation)\\n        }\\n\\n        emit ProxyImplementationUpdated(previousImplementation, newImplementation);\\n\\n        if (data.length > 0) {\\n            (bool success, ) = newImplementation.delegatecall(data);\\n            if (!success) {\\n                assembly {\\n                    // This assembly ensure the revert contains the exact string data\\n                    let returnDataSize := returndatasize()\\n                    returndatacopy(0, 0, returnDataSize)\\n                    revert(0, returnDataSize)\\n                }\\n            }\\n        }\\n    }\\n}\\n\"\n    },\n    \"solc_0.8/proxy/EIP173ProxyWithReceive.sol\": {\n      \"content\": \"// SPDX-License-Identifier: MIT\\npragma solidity ^0.8.0;\\n\\nimport \\\"./EIP173Proxy.sol\\\";\\n\\n///@notice Proxy implementing EIP173 for ownership management that accept ETH via receive\\ncontract EIP173ProxyWithReceive is EIP173Proxy {\\n    constructor(\\n        address implementationAddress,\\n        address ownerAddress,\\n        bytes memory data\\n    ) payable EIP173Proxy(implementationAddress, ownerAddress, data) {}\\n\\n    receive() external payable override {}\\n}\\n\"\n    }\n  },\n  \"settings\": {\n    \"optimizer\": {\n      \"enabled\": true,\n      \"runs\": 999999\n    },\n    \"outputSelection\": {\n      \"*\": {\n        \"*\": [\n          \"abi\",\n          \"evm.bytecode\",\n          \"evm.deployedBytecode\",\n          \"evm.methodIdentifiers\",\n          \"metadata\",\n          \"devdoc\",\n          \"userdoc\",\n          \"storageLayout\",\n          \"evm.gasEstimates\"\n        ],\n        \"\": [\n          \"ast\"\n        ]\n      }\n    },\n    \"metadata\": {\n      \"useLiteralContent\": true\n    }\n  }\n}",
   "solcInputHash": "4a46ee6c1a29be400c9fab1ecc28e172",
   "argsData": "0x000000000000000000000000babf49136c3e5577ea38b6cfe643898af1ba125600000000000000000000000061c461ecc993aadeb7e4b47e96d1b8cc37314b2000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000000",
-  "linkedData": {
-    "startTime": "0",
-    "commitPhaseDuration": "20",
-    "revealPhaseDuration": "3",
-    "time": "0x0000000000000000000000000000000000000000",
-    "avatars": "0xedfd3746e211a5fded0a871f2003574feb3a4654",
-    "genesisHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
-    "numSpaceshipsOnActivation": 100000,
-    "productionCapAsDuration": 259200
-  },
   "transaction": {
     "nonce": "0x1a",
     "hash": "0x92c507ee94d334e1d66c613c4b552f9d69bd9c8876bdf91b9e1053edae749e19",
     "origin": "0x61c461ecc993aadeb7e4b47e96d1b8cc37314b20"
   },
   "receipt": {
-    "blockHash": "0xc76826d049f5e499d90cf0545a0e8e35c4e98243435034ffa8c05de76c077c09",
-    "blockNumber": "0xa14d6d",
-    "transactionIndex": "0x2"
+    "blockHash": "0x8f42de579d055f4bb1e6d83695cf8a217ec0c8697fa7e54c082c18917b8deabf",
+    "blockNumber": "0xa19470",
+    "transactionIndex": "0x1"
   },
   "immutableReferences": {
     "4": [
@@ -1251,5 +1127,15 @@
       }
     ]
   },
-  "inputSourceName": "project/solc_0_8/router/Router10X60.sol"
+  "inputSourceName": "project/solc_0_8/router/Router10X60.sol",
+  "linkedData": {
+    "startTime": "0",
+    "commitPhaseDuration": "20",
+    "revealPhaseDuration": "3",
+    "time": "0x0000000000000000000000000000000000000000",
+    "avatars": "0xedfd3746e211a5fded0a871f2003574feb3a4654",
+    "genesisHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+    "numSpaceshipsOnActivation": 100000,
+    "productionCapAsDuration": 259200
+  }
 }

@@ -242,8 +242,8 @@ abstract contract UsingGameInternal is
             Action memory action = actions[i];
 
             // NWSE (North, West, South, East)
-            if (action.actionType == ActionType.AcquireSolarSystem) {
-                _acquireSolarSystem(resolution, action.data);
+            if (action.actionType == ActionType.AcquireStarSystem) {
+                _acquireStarSystem(resolution, action.data);
             } else if (action.actionType == ActionType.SendFleet) {
                 _sendFleet(resolution, action.data);
             } else if (action.actionType == ActionType.ResolveFleet) {
@@ -256,28 +256,129 @@ abstract contract UsingGameInternal is
         }
     }
 
-    function _acquireSolarSystem(
+    function _acquireStarSystem(
         ActionResolution memory resolution,
         uint128 actionData
-    ) internal pure {
+    ) internal  {
+        uint64 location = uint64(actionData);
+        StarSystemState storage starSystem = _starSystems[location];
+        if (starSystem.empireID != 0) {
+            // TODO auction or distance
+            // for now skip
+
+        } else {
+            starSystem.empireID = resolution.empireID;
+            starSystem.isActive = true;
+            starSystem.lastUpdatedEpoch = resolution.epoch;
+            // TODO NUM_SPACESHIPS_ON_ACTIVATION should be uint64 ?
+            starSystem.numSpaceships = uint64(NUM_SPACESHIPS_ON_ACTIVATION);
+        }
+        
         resolution.numActionsResolved++;
-        resolution.stopProcessing = true;
+        resolution.stopProcessing = false;
     }
 
     function _sendFleet(
         ActionResolution memory resolution,
         uint128 actionData
-    ) internal view {
+    ) internal  {
+        uint64 from = uint64(actionData);
+        uint64 spaceshipsSent = uint32(actionData >> 64);
+        uint64 minArrivalEpoch = uint64(actionData >> 96); // TODO 128 bit do not fit all here
+
+        // TODO use minArrivalEpoch
+        
+        StarSystemState storage fromStarSystem = _starSystems[from];
+        if (fromStarSystem.empireID != resolution.empireID) {
+            // TODO allow sending fleet even if attack happen and change empire
+            // we track change of ownership but we need to track previous owner
+
+        } else {
+            // TODO do not allow sending fleet on the same epoch where you capture a star system
+            if (fromStarSystem.numSpaceships < spaceshipsSent) {
+                resolution.stopProcessing = false;
+                return;
+            } else {
+                fromStarSystem.numSpaceships -= spaceshipsSent;
+            }
+            
+        }
+
+        // TODO
+        uint64 distance = 0;
+        if (distance == 0) {
+
+        }
+
         resolution.numActionsResolved++;
-        resolution.stopProcessing = true;
+        resolution.stopProcessing = false;
+    }
+
+    function _sendInstantFleet(
+        ActionResolution memory resolution,
+        uint128 actionData
+    ) internal  {
+        uint64 from = uint64(actionData);
+        uint64 to = uint64(actionData >> 64);
+        uint64 spaceshipsSent = uint32(actionData >> 128);
+        
+        StarSystemState storage fromStarSystem = _starSystems[from];
+        if (fromStarSystem.empireID != resolution.empireID) {
+            // TODO allow sending fleet even if attack happen and change empire
+            // we track change of ownership but we need to track previous owner
+
+        } else {
+            // TODO do not allow sending fleet on the same epoch where you capture a star system
+            if (fromStarSystem.numSpaceships < spaceshipsSent) {
+                resolution.stopProcessing = false;
+                return;
+            } else {
+                fromStarSystem.numSpaceships -= spaceshipsSent;
+            }
+            
+        }
+
+        StarSystemState storage toStarSystem = _starSystems[to];
+        if (toStarSystem.numSpaceships >= spaceshipsSent) {
+            // attack lost
+            toStarSystem.numSpaceships -= spaceshipsSent;
+        } else {
+            // attack won;
+            toStarSystem.numSpaceships = spaceshipsSent - toStarSystem.numSpaceships;
+            toStarSystem.empireID = resolution.empireID;
+        }
+        
+        
+        resolution.numActionsResolved++;
+        resolution.stopProcessing = false;
     }
 
     function _resolveFleet(
         ActionResolution memory resolution,
+        // TODO consider using a different aproach for second reveal
         uint128 actionData
     ) internal pure {
+
+        // 
+
+        // StarSystemState storage fromStarSystem = _starSystems[from];
+        // if (fromStarSystem.empireID != resolution.empireID) {
+        //     // TODO allow sending fleet even if attack happen and change empire
+        //     // we track change of ownership but we need to track previous owner
+
+        // } else {
+        //     // TODO do not allow sending fleet on the same epoch where you capture a star system
+        //     if (fromStarSystem.numSpaceships < spaceshipsSent) {
+        //         resolution.stopProcessing = false;
+        //         return;
+        //     } else {
+        //         fromStarSystem.numSpaceships -= spaceshipsSent;
+        //     }
+            
+        // }
+
         resolution.numActionsResolved++;
-        resolution.stopProcessing = true;
+        resolution.stopProcessing = false;
     }
 
     function _epoch()

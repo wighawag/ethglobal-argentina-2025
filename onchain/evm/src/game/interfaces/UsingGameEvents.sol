@@ -8,13 +8,13 @@ interface UsingGameEvents is UsingGameTypes {
     /// @param empireID the id of the empire activating the star system
     /// @param zone on which the star system is located
     /// @param epoch at which the acquisition happe
-    /// @param solarSystemID star system being acquired
+    /// @param starSystemID star system being acquired
     /// @param stake amount of take that the star system require
-    event SolarSystemAcquired(
+    event StarSystemAcquired(
         uint256 indexed empireID,
         uint64 indexed zone,
         uint64 indexed epoch,
-        uint256 solarSystemID,
+        uint256 starSystemID,
         uint256 stake // not needed, but useful for indexers // TODO? remove
     );
 
@@ -22,16 +22,16 @@ interface UsingGameEvents is UsingGameTypes {
         uint256 indexed empireID,
         uint64 indexed zone,
         uint64 indexed epoch,
-        uint256 fromSolarSystemID, // TODO? would like to index this but we reacheed the 3 indexed param limit
+        uint256 fromStarSystemID, // TODO? would like to index this but we reacheed the 3 indexed param limit
         uint256 fleetID,
         uint256 numSpaceships
     );
 
-    event SolarSystemUpdated(
+    event StarSystemUpdated(
         uint256 indexed empireID,
         uint64 indexed zone,
         uint64 indexed epoch,
-        uint256 solarSystemID,
+        uint256 starSystemID,
         StarSystemState state
     );
 
@@ -40,7 +40,7 @@ interface UsingGameEvents is UsingGameTypes {
         uint64 indexed zone,
         uint64 indexed epoch,
         uint256 fleetID, // TODO? would like to index this but we reacheed the 3 indexed param limit
-        uint256 toSolarSystemID
+        uint256 toStarSystemID
     );
 
     /// @notice A player has commited to make some actions and reveal them on the reveal phase

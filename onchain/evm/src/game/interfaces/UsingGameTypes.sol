@@ -11,7 +11,7 @@ interface UsingGameTypes {
 
     /// @notice The set of possible action
     enum ActionType {
-        AcquireSolarSystem,
+        AcquireStarSystem,
         SendFleet,
         ResolveFleet
     }

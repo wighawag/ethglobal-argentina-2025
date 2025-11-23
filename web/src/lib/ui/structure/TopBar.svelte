@@ -45,7 +45,7 @@
 >
 	<div class="flex h-full items-center space-x-2">
 		<!-- Logo or App Name -->
-		<span class="text-lg font-bold">dgame</span>
+		<span class="text-lg font-bold">Battle Space</span>
 		<!-- <span
 			>{#if $avatars.step == 'Loaded'}
 				{$avatars.avatarsInWallet.length} / {$avatars.avatarsOnBench.length} / {$avatars

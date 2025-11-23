@@ -14,7 +14,7 @@ export function createAutoSubmitter() {
 		const currentEpochInfo = epochInfo.fromTime(now);
 		const currentLocalData = localState.value;
 
-		if (!currentLocalData.signer || !currentLocalData.avatar) {
+		if (!currentLocalData.signer || !currentLocalData.empire) {
 			clearTimers();
 			return false;
 		}
@@ -22,9 +22,8 @@ export function createAutoSubmitter() {
 		// High-frequency check for commit
 		if (
 			currentEpochInfo.isCommitPhase &&
-			!currentLocalData.avatar.submission &&
-			!(currentLocalData.avatar.exiting && currentLocalData.avatar.actions.length == 0) &&
-			currentLocalData.avatar.epoch == currentEpochInfo.currentEpoch
+			!currentLocalData.empire.submission &&
+			currentLocalData.empire.epoch == currentEpochInfo.currentEpoch
 		) {
 			localState.commit({ pollingInterval: interval });
 			clearTimers();
@@ -42,34 +41,25 @@ export function createAutoSubmitter() {
 		const currentEpochInfo = epochInfo.fromTime(now);
 		const currentLocalData = localState.value;
 
-		if (!currentLocalData.signer || !currentLocalData.avatar) {
+		if (!currentLocalData.signer || !currentLocalData.empire) {
 			clearTimers();
 			return false;
 		}
 
 		if (!currentEpochInfo.isCommitPhase) {
 			if (
-				currentLocalData.avatar.submission &&
-				currentLocalData.avatar.submission.commit.epoch == currentEpochInfo.currentEpoch
+				currentLocalData.empire.submission &&
+				currentLocalData.empire.submission.commit.epoch == currentEpochInfo.currentEpoch
 			) {
 				if (
-					!currentLocalData.avatar.submission.reveal ||
-					currentLocalData.avatar.submission.reveal.epoch < currentEpochInfo.currentEpoch
+					!currentLocalData.empire.submission.reveal ||
+					currentLocalData.empire.submission.reveal.epoch < currentEpochInfo.currentEpoch
 				) {
 					localState.reveal({ pollingInterval: interval });
 					clearTimers();
 					return true;
 				}
 			} else {
-				// Handle avatar removal if commit was not performed
-				if (
-					currentLocalData.avatar.epoch == currentEpochInfo.currentEpoch &&
-					currentLocalData.avatar.actions.length > 0 &&
-					currentLocalData.avatar.actions[currentLocalData.avatar.actions.length - 1].type ==
-						'enter'
-				) {
-					localState.removeAvatar();
-				}
 				// Stop checking if conditions no longer met
 				clearTimers();
 				return false;
@@ -119,7 +109,7 @@ export function createAutoSubmitter() {
 				clearTimers();
 				return;
 			}
-			if (!localData.avatar) {
+			if (!localData.empire) {
 				clearTimers();
 				return;
 			}
@@ -129,17 +119,17 @@ export function createAutoSubmitter() {
 
 			const shouldStartCommitCheck =
 				$epochInfo.isCommitPhase &&
-				!localData.avatar.submission &&
-				localData.avatar.epoch == $epochInfo.currentEpoch &&
+				!localData.empire.submission &&
+				localData.empire.epoch == $epochInfo.currentEpoch &&
 				timeToCommit <= 1.0; // Within 1 second of commit time
 
 			// For reveal: check if we need to start high-frequency checking 1 second before reveal time
 			const shouldStartRevealCheck =
 				!shouldStartCommitCheck &&
-				localData.avatar.submission &&
-				localData.avatar.submission.commit.epoch == $epochInfo.currentEpoch &&
-				(!localData.avatar.submission.reveal ||
-					localData.avatar.submission.reveal.epoch < $epochInfo.currentEpoch) &&
+				localData.empire.submission &&
+				localData.empire.submission.commit.epoch == $epochInfo.currentEpoch &&
+				(!localData.empire.submission.reveal ||
+					localData.empire.submission.reveal.epoch < $epochInfo.currentEpoch) &&
 				(!$epochInfo.isCommitPhase || $epochInfo.timeLeftForCommitEnd <= 1.0); // Within 1 second of reveal time
 
 			// Start high-frequency checking for commit if needed

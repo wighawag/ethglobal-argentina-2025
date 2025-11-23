@@ -61,7 +61,7 @@
 	</svg>
 </div>
 
-{#if $twoPhase.phase === 'wait' && $twoPhase.timeLeft > 0.1 && !!$localState.signer && !!$localState.avatar}
+{#if $twoPhase.phase === 'wait' && $twoPhase.timeLeft > 0.1 && !!$localState.signer && !!$localState.empire}
 	<div
 		class="fixed bottom-0 left-0 z-50 flex h-12 w-full items-center justify-between bg-red-600 px-4 text-white shadow-md"
 	>
@@ -70,7 +70,7 @@
 	</div>
 {/if}
 
-{#if ($twoPhase.phase === 'wait' && $twoPhase.timeLeft > 0.1 && !!$localState.signer && !!$localState.avatar) || ($localState.signer ? !!$localState.avatar?.actions.find((v) => v.type === 'enter') && $localState.avatar.epoch >= $epochInfo.currentEpoch : false)}
+{#if ($twoPhase.phase === 'wait' && $twoPhase.timeLeft > 0.1 && !!$localState.signer && !!$localState.empire) || ($localState.signer ? $localState.empire && $localState.empire.epoch >= $epochInfo.currentEpoch : false)}
 	<div
 		transition:fade
 		class="full-screen-border border-red-600"
@@ -79,7 +79,7 @@
       border-radius: 0px;
     "
 	></div>
-{:else if $localState.signer && $localState.avatar}
+{:else if $localState.signer && $localState.empire}
 	<div
 		transition:fade
 		class="full-screen-border border-yellow-600"

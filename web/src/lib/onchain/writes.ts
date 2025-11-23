@@ -17,14 +17,12 @@ import { privateKeyToAccount } from 'viem/accounts';
 import { gasFee } from './gasFee';
 export type TransactionExecution = { transactionID: string; wait(): Promise<void> };
 
-function actionTypeNameToEnum(actionType: string): number {
+function actionTypeNameToEnum(actionType: 'acquire' | 'sendFleet'): number {
 	switch (actionType) {
-		case 'enter':
+		case 'acquire':
 			return 0;
-		case 'move':
+		case 'sendFleet':
 			return 1;
-		case 'exit':
-			return 2;
 		default:
 			throw new Error(`unknown action type: ${actionType}`);
 	}
@@ -33,7 +31,12 @@ function actionTypeNameToEnum(actionType: string): number {
 function fromLocalActionToContractValue(action: LocalAction) {
 	return {
 		actionType: actionTypeNameToEnum(action.type),
-		data: xyToBigIntID(action.x, action.y)
+		data:
+			action.type === 'acquire'
+				? xyToBigIntID(action.location.x, action.location.y)
+				: xyToBigIntID(action.from.x, action.from.y) +
+					BigInt(action.fleet.spaceships) * 2n ** 64n +
+					BigInt(action.minArrivalEpoch) * 2n ** 96n
 	};
 }
 

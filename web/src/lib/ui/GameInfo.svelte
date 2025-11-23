@@ -4,7 +4,7 @@
 
 	function clear() {
 		avatars.update();
-		localState.removeAvatar();
+		localState.removeEmpire();
 	}
 
 </script>

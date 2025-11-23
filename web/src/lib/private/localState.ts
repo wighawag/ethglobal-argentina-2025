@@ -1,26 +1,33 @@
-import { get, writable, type Readable } from 'svelte/store';
-import { createAutoSubmitter } from '$lib/onchain/auto-submit';
-import { epochInfo, localComputer, time } from '$lib/time';
-import {
-	connection,
-	publicClient,
-	signer,
-	type OptionalSigner,
-	type Signer
-} from '$lib/connection';
-import { writes } from '$lib/onchain/writes';
-import { keccak256 } from 'viem';
+import { signer, type OptionalSigner, type Signer } from '$lib/connection';
 import deployments from '$lib/deployments';
-import { privateKeyToAccount } from 'viem/accounts';
+import { createAutoSubmitter } from '$lib/onchain/auto-submit';
+import { writes } from '$lib/onchain/writes';
+import { epochInfo } from '$lib/time';
 import type { Position } from 'dgame-contracts';
+import { writable, type Readable } from 'svelte/store';
+import { keccak256 } from 'viem';
+import { privateKeyToAccount } from 'viem/accounts';
 
-export type LocalAction = {
-	type: 'move' | 'exit' | 'enter';
-	x: number;
-	y: number;
-};
+export type LocalAction =
+	| {
+			type: 'acquire';
+			location: {
+				x: number;
+				y: number;
+			};
+	  }
+	| {
+			type: 'sendFleet';
+			from: { x: number; y: number };
+			to: { x: number; y: number };
+			fleet: {
+				spaceships: number;
+			};
+			minArrivalEpoch: number;
+	  };
 
-export type LocalAvatar = {
+export type EmpireData = {
+	empireID: string;
 	actions: LocalAction[];
 	submission?: {
 		commit: {
@@ -35,18 +42,16 @@ export type LocalAvatar = {
 		};
 	};
 	epoch: number;
-	avatarID: string;
-	exiting: boolean;
 };
 
 export type LocalSignedInState = {
 	signer: Signer;
-	avatar?: LocalAvatar;
+	empire?: EmpireData;
 	tutorialSeen: boolean;
 };
 export type LocalReadyState = {
 	signer: Signer;
-	avatar: LocalAvatar;
+	empire: EmpireData;
 	tutorialSeen: boolean;
 };
 export type LocalState = { signer: undefined } | LocalSignedInState | LocalReadyState;
@@ -119,16 +124,15 @@ export function createLocalState(signer: Readable<OptionalSigner>) {
 		if (!$state.signer) {
 			return;
 		}
-		if (!$state.avatar) {
+		if (!$state.empire) {
 			return;
 		}
 		console.log(`reseting actions`);
-		$state.avatar = {
-			avatarID: $state.avatar.avatarID,
+		$state.empire = {
+			empireID: $state.empire.empireID,
 			actions: [],
-			epoch: $state.avatar.epoch,
-			submission: undefined,
-			exiting: $state.avatar.exiting
+			epoch: $state.empire.epoch,
+			submission: undefined
 		};
 	}
 
@@ -136,17 +140,16 @@ export function createLocalState(signer: Readable<OptionalSigner>) {
 		if (!$state.signer) {
 			return;
 		}
-		if (!$state.avatar) {
+		if (!$state.empire) {
 			return;
 		}
-		if (epoch > $state.avatar.epoch) {
+		if (epoch > $state.empire.epoch) {
 			console.log(`new epoch, we reset actions`);
-			$state.avatar = {
-				avatarID: $state.avatar.avatarID,
+			$state.empire = {
+				empireID: $state.empire.empireID,
 				actions: [],
 				epoch,
-				submission: undefined,
-				exiting: $state.avatar.exiting
+				submission: undefined
 			};
 		}
 	}
@@ -166,19 +169,15 @@ export function createLocalState(signer: Readable<OptionalSigner>) {
 				throw new Error(`no signer`);
 			}
 
-			if (!$state.avatar) {
-				throw new Error(`no avatar`);
+			if (!$state.empire) {
+				throw new Error(`no empire`);
 			}
 
-			if ($state.avatar.submission) {
+			if ($state.empire.submission) {
 				throw new Error(`submission in progress`);
 			}
 
-			if ($state.avatar.actions[0]?.type === 'enter') {
-				return;
-			}
-
-			$state.avatar.actions.push(action);
+			$state.empire.actions.push(action);
 			set($state);
 		},
 		update(epoch: number) {
@@ -186,31 +185,31 @@ export function createLocalState(signer: Readable<OptionalSigner>) {
 			set($state);
 		},
 		reset,
-		enter(avatarID: bigint, epoch: number, position: Position) {
-			updateLocalState(epoch);
-			if (!$state.signer) {
-				throw new Error(`no signer`);
-			}
+		// enter(empireID: bigint, epoch: number, position: Position) {
+		// 	updateLocalState(epoch);
+		// 	if (!$state.signer) {
+		// 		throw new Error(`no signer`);
+		// 	}
 
-			// TODO should we still check here to avoid overriding by mistake ?
-			// if ($state.avatar && $state.avatar.avatarID != avatarID.toString()) {
-			// 	throw new Error(`got an avatar already`);
-			// }
+		// 	// TODO should we still check here to avoid overriding by mistake ?
+		// 	// if ($state.empire && $state.empire.empireID != empireID.toString()) {
+		// 	// 	throw new Error(`got an empire already`);
+		// 	// }
 
-			console.log(`enterring at epoch: ${epoch}`);
-			const actions: LocalAction[] = [{ type: 'enter', x: position.x, y: position.y }];
+		// 	console.log(`enterring at epoch: ${epoch}`);
+		// 	const actions: LocalAction[] = [{ type: 'enter', x: position.x, y: position.y }];
 
-			// console.log(`avatars`, avatarID);
+		// 	// console.log(`empires`, empireID);
 
-			$state.avatar = {
-				avatarID: avatarID.toString(),
-				actions,
-				epoch,
-				exiting: false
-			};
+		// 	$state.empire = {
+		// 		empireID: empireID.toString(),
+		// 		actions,
+		// 		epoch,
+		// 		exiting: false
+		// 	};
 
-			set($state);
-		},
+		// 	set($state);
+		// },
 
 		async commit(options?: { pollingInterval?: number }) {
 			if (commiting) {
@@ -222,14 +221,14 @@ export function createLocalState(signer: Readable<OptionalSigner>) {
 				throw new Error(`no signer`);
 			}
 
-			if (!$state.avatar) {
-				throw new Error(`no avatar`);
+			if (!$state.empire) {
+				throw new Error(`no empire`);
 			}
 
 			const $epochInfo = epochInfo.now();
 			const { currentEpoch: epoch } = $epochInfo;
 
-			if ($state.avatar.epoch > epoch) {
+			if ($state.empire.epoch > epoch) {
 				console.log(`not in yet`);
 				return;
 			}
@@ -241,7 +240,7 @@ export function createLocalState(signer: Readable<OptionalSigner>) {
 			try {
 				commiting = true;
 
-				const actions = [...$state.avatar.actions];
+				const actions = [...$state.empire.actions];
 
 				const account = privateKeyToAccount($state.signer.privateKey);
 				const secretSig = await account.signMessage({
@@ -249,13 +248,13 @@ export function createLocalState(signer: Readable<OptionalSigner>) {
 				});
 				const secret = keccak256(secretSig);
 				const { transactionID, wait } = await writes.commit_actions(
-					BigInt($state.avatar.avatarID),
+					BigInt($state.empire.empireID),
 					secret,
 					actions,
 					options
 				);
 
-				$state.avatar.submission = {
+				$state.empire.submission = {
 					commit: {
 						epoch,
 						secret,
@@ -263,7 +262,6 @@ export function createLocalState(signer: Readable<OptionalSigner>) {
 						actions
 					}
 				};
-				$state.avatar.exiting = !!actions.find((action) => action.type === 'exit');
 				set($state);
 
 				console.log(`waiting for commit tx...`);
@@ -272,11 +270,11 @@ export function createLocalState(signer: Readable<OptionalSigner>) {
 				console.log(`... commit receipt received!`);
 				if (receipt.status === 'reverted') {
 					console.error(`commit reverted`, receipt);
-					$state.avatar.submission = undefined;
+					$state.empire.submission = undefined;
 					set($state);
 				}
 			} catch (err) {
-				$state.avatar.submission = undefined;
+				$state.empire.submission = undefined;
 				set($state);
 				console.error(err);
 			} finally {
@@ -284,38 +282,15 @@ export function createLocalState(signer: Readable<OptionalSigner>) {
 			}
 		},
 
-		rewind(epoch: number) {
+		removeEmpire() {
 			if (!$state.signer) {
 				throw new Error(`no signer`);
 			}
 
-			if (!$state.avatar) {
-				throw new Error(`no avatar`);
+			if (!$state.empire) {
+				throw new Error(`no empire`);
 			}
-
-			updateLocalState(epoch);
-
-			if ($state.avatar.actions.length > 0) {
-				if ($state.avatar.actions[$state.avatar.actions.length - 1].type !== 'enter') {
-					const lastAction = $state.avatar.actions.pop();
-					// if (lastAction?.type === 'exit') {
-					// TODO auto cancel the move too ?
-					// need to handle case where there i s no move
-					// }
-				}
-			}
-			set($state);
-		},
-
-		removeAvatar() {
-			if (!$state.signer) {
-				throw new Error(`no signer`);
-			}
-
-			if (!$state.avatar) {
-				throw new Error(`no avatar`);
-			}
-			$state.avatar = undefined;
+			$state.empire = undefined;
 			set($state);
 		},
 
@@ -329,8 +304,8 @@ export function createLocalState(signer: Readable<OptionalSigner>) {
 				throw new Error(`no signer`);
 			}
 
-			if (!$state.avatar) {
-				throw new Error(`no avatar`);
+			if (!$state.empire) {
+				throw new Error(`no empire`);
 			}
 
 			const $epochInfo = epochInfo.now();
@@ -338,13 +313,13 @@ export function createLocalState(signer: Readable<OptionalSigner>) {
 
 			updateLocalState(epoch);
 
-			if (!$state.avatar.submission) {
+			if (!$state.empire.submission) {
 				return;
 			}
 
 			console.log(`revealing for epoch ${epoch}...`);
 
-			const commitment = $state.avatar.submission.commit;
+			const commitment = $state.empire.submission.commit;
 			if (!commitment) {
 				throw new Error(`cannot reveal without commitment info`);
 			}
@@ -360,13 +335,13 @@ export function createLocalState(signer: Readable<OptionalSigner>) {
 				// }
 
 				const { transactionID, wait } = await writes.reveal_actions(
-					BigInt($state.avatar.avatarID),
+					BigInt($state.empire.empireID),
 					commitment.secret,
 					commitment.actions,
 					options
 				);
 
-				$state.avatar.submission = {
+				$state.empire.submission = {
 					commit: commitment,
 					reveal: {
 						epoch,
@@ -381,12 +356,12 @@ export function createLocalState(signer: Readable<OptionalSigner>) {
 				console.log(`... reveal receipt received!`);
 				if (receipt.status === 'reverted') {
 					console.error(`reveal reverted`, receipt);
-					$state.avatar.submission.reveal = undefined;
+					$state.empire.submission.reveal = undefined;
 					set($state);
 				}
 			} catch (err) {
-				if ($state.avatar.submission) {
-					$state.avatar.submission.reveal = undefined;
+				if ($state.empire.submission) {
+					$state.empire.submission.reveal = undefined;
 					set($state);
 				}
 				console.error(err);

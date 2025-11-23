@@ -1,5 +1,6 @@
 import { connection } from '$lib/connection';
 import deployments from '$lib/deployments';
+import { signalReady } from '$lib/utils/mini-app';
 import { derived, writable, type Readable } from 'svelte/store';
 
 export type LastSync = { timestampMS: number; blockNumber: number; averageBlockTime: number };
@@ -58,6 +59,7 @@ export function createTime(chainInfo?: { minPollingInterval?: number }) {
 	async function initialSync() {
 		const synced = await updateTimeFromProvider();
 		if (synced) {
+			signalReady();
 			// Initial sync successful, now start polling to catch the next block
 			// for maximum accuracy, then we'll stop polling
 			startBlockPolling(synced);

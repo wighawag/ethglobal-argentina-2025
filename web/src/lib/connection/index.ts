@@ -14,7 +14,7 @@ class FarcasterWalletConnector extends EthereumWalletConnector {
 	override fetchWallets(walletAnnounced: (walletInfo: any) => void): void {
 		sdk.context
 			.then((context) => {
-				if (context.user.fid) {
+				if (context?.user?.fid) {
 					if (this.farcasterHandle) {
 						walletAnnounced(this.farcasterHandle);
 					} else {

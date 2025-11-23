@@ -68,4 +68,4 @@ More description to come...
 
 ## License
 
-This project is part of the EthGlobal hackathon and demonstrates a fully decentralized gaming experience with no backend dependencies.
+This project is licensed under the AGPL (Affero General Public License) and is part of the EthGlobal hackathon, demonstrating a fully decentralized gaming experience with no backend dependencies.

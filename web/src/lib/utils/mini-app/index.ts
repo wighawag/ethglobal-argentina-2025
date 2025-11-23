@@ -6,3 +6,5 @@ export async function signalReady() {
 	await sdk.actions.ready();
 	console.log(`...ready`);
 }
+
+export const isMiniApp = await sdk.isInMiniApp();

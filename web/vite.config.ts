@@ -35,5 +35,8 @@ export default defineConfig({
 		emptyOutDir: true,
 		minify: false,
 		sourcemap: true
+	},
+	server: {
+		allowedHosts: ['harley-hook-furniture-shortcuts.trycloudflare.com']
 	}
 });

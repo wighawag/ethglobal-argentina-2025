@@ -11,6 +11,7 @@
 	import WalletOnlyConnectionFlow from '$lib/connection/WalletOnlyConnectionFlow.svelte';
 	import GameInfo from '$lib/ui/GameInfo.svelte';
 	import Tutorial from '$lib/ui/tutorial/Tutorial.svelte';
+	import { isMiniApp } from '$lib/utils/mini-app';
 </script>
 
 <main>
@@ -22,7 +23,11 @@
 
 <PurchaseFlow />
 
+{#if isMiniApp}
+<WalletOnlyConnectionFlow connection={connection} />
+{:else}
 <ConnectionFlow {connection} />
+{/if}
 <WalletOnlyConnectionFlow connection={paymentConnection} />
 
 <div class="canvas">

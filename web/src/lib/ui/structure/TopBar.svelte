@@ -11,6 +11,7 @@
 	import Spinner from '../generic/Spinner.svelte';
 	import deployments from '$lib/deployments';
 	import { localState } from '$lib/private/localState';
+	import { isMiniApp } from '$lib/utils/mini-app';
 
 	let showMenu = $state(false);
 
@@ -23,6 +24,19 @@
 		if (event.target === event.currentTarget) {
 			showMenu = false;
 		}
+	}
+
+
+	function connect() {
+		if (isMiniApp) {
+			connection.connect({
+				type: 'wallet',
+				name: 'Farcaster'
+			})
+		} else {
+			connection.connect()
+		}
+		
 	}
 </script>
 
@@ -70,7 +84,7 @@
 			<!-- disabled={$connection.step != 'Idle'} -->
 			<Button
 				class="m-0 flex h-8 items-center justify-center p-0 px-3"
-				onclick={() => connection.connect()}
+				onclick={() => connect()}
 			>
 				Connect
 			</Button>
